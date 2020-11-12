@@ -1,11 +1,12 @@
 var userModel = require('../models/user');
 
 
-class userService 
+module.exports = class userService 
 {
-     async signup(user) {
-        
-        
+    constructor() {}
 
+    async signup(user) {
+        let userMod = new userModel();
+        await userMod.createUser(user);
     }
 }

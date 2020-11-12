@@ -1,8 +1,14 @@
 var express = require('express');
 var router = express.Router();
+var validators = require('../../validators');
+var propValidator = require('../../validators/propertiesValidator');
+var userService = require('../../services/userService');
 
 
-router.post('/', (req, res) => res.status(200).json(req.body));
+router.post('/', propValidator(validators.signUpProperties), (req, res) => {
+    var userServ = new userService();
+    userServ.signup(req.body)
+});
 
 module.exports = router;
 
