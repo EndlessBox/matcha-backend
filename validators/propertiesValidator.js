@@ -4,7 +4,12 @@ module.exports = function (fields) {
     var missingFields;
 
     missingFields = fields.filter((field) => !data[field]);
-    if (missingFields.length) return res.status(400).send(missingFields);
+    if (missingFields.length)
+    {
+      let error = new Error(`Missing Fields : ${missingFields.toString()}.`);
+      error.status = 400;
+      return next(error);
+    }
     next();
   };
 };

@@ -25,7 +25,7 @@ module.exports = class userModel {
             }, user)
         }
         catch (err) {
-            console.error(err.sqlMessage);
+            console.error(err);
             return;
         }
     }
