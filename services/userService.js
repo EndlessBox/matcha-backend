@@ -6,10 +6,9 @@ module.exports = class userService {
 
     async signup(user) {
         return await new Promise(async (resolve, reject) => {
-            let userMod = new userModel();
             try {
-                var result = await userMod.createUser(user);
-                resolve(result);
+                let userId = await new userModel().createUser(user);
+                resolve(userId);
             } catch (err) {
                 reject(err);
             }

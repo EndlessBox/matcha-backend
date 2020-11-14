@@ -6,12 +6,10 @@ var userService = require('../../services/userService');
 
 
 router.post('/', propValidator(validators.signUpProperties), async (req, res, next) => {
-    var userServ = new userService();
     try {
-        var result = await userServ.signup(req.body);
         var response = {
             status: 200,
-            userId: result
+            userId: await new userService().signup(req.body)
         }
         res.status(200).json(response);
     }

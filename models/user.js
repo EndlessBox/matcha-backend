@@ -11,7 +11,7 @@ module.exports = class userModel {
                 Object.keys(user).map((keyName) => user[keyName] = dbConnection.escape(user[keyName]));
                 user['id'] = null;
 
-                const [results, fields] = await dbConnection.query({
+                const [results, _] = await dbConnection.query({
                     sql: "INSERT INTO `user` SET ?",
                     timeout: 40000,
                 }, user)
