@@ -1,4 +1,4 @@
-var mysql = require("mysql2/promise");
+var mysql = require("mysql2");
 var dbConfig = require("../config/config").Database;
 
 module.exports = () => {
@@ -26,7 +26,7 @@ module.exports = () => {
         password: dbConfig.dbPassword,
         database: dbConfig.dbName,
         connectionLimit: dbConfig.dbConnectionLimit
-      });
+      }).promise();
       return database;
     }
     catch (err) {
