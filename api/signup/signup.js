@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var validators = require('../../validators');
-var propValidator = require('../../validators/propertiesValidator');
+var validators = require('../../validators').properties;
+var propValidator = require('../../validators/functionalities/propertiesValidator');
 var userService = require('../../services/userService');
 
 
