@@ -7,7 +7,6 @@ module.exports = class mailService {
     this.port = port;
     this.userName = userName;
     this.password = password;
-    console.log(this);
   }
 
   createTransporter() {

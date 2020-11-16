@@ -28,7 +28,6 @@ module.exports = class userService {
         );
         resolve(userId);
       } catch (err) {
-        console.log(err);
         reject(err);
       }
     });
