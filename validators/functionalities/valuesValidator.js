@@ -1,4 +1,4 @@
-module.exports = (fields) => {
+module.exports = (fields=null) => {
 
 
   var internValidator = (field, data) => {
@@ -47,22 +47,23 @@ module.exports = (fields) => {
           return(false);
         break;
     }
+    return (true);
   }
 
   var valueValidator  = (req, res, next) => {
-    
     var data = req.body;
     var invalidFields;
     var error;
 
     invalidFields = fields.filter((field) => !internValidator(field, data[field]));
     if (invalidFields.length) {
-      error = new Error(`Invalide Fields : ${invalidFields}`);
+      error = new Error(`Invalide Fields : ${invalidFields}.`);
       error.status = 400;
       next(error);
     }
     next();
   };
 
-  return {valueValidator: valueValidator}
+  return {valueValidator: valueValidator,
+          internValidator: internValidator}
 };

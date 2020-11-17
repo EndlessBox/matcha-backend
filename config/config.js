@@ -18,4 +18,13 @@ module.exports = {
     mailUserName: process.env.MAIL_USERNAME,
     mailPassword: process.env.MAIL_PASSWORD,
   },
+  Contents: {
+    mailVerification: {
+      subject: "Email Verification",
+      // contentText: (userName, link) => `Hello ${userName}, Please click the following link to activate your account :\n\t${link}`,
+      contentText: null,
+      contentHtml: (userName, link) => `<h3>Hello ${userName}</h3>, <p>Please click the following link to activate your account :\n\t<a href="${link}">Verification Link</a></p>`,
+      link: "http://localhost:4200/verifyEmail"
+    }
+  }
 };

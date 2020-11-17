@@ -1,12 +1,12 @@
 const nodemailer = require("nodemailer");
-var value;
+var emailConfig = require("../config/config").Mailing;
 
 module.exports = class mailService {
-  constructor(host, port, userName, password) {
-    this.host = host;
-    this.port = port;
-    this.userName = userName;
-    this.password = password;
+  constructor() {
+    this.host =  emailConfig.mailHost;
+    this.port = emailConfig.mailPort;
+    this.userName = emailConfig.mailUserName;
+    this.password = emailConfig.mailPassword;
   }
 
   createTransporter() {
@@ -25,7 +25,7 @@ module.exports = class mailService {
     return await transporter.sendMail({
       from: from,
       to: to,
-      subject: subject,
+      subject: subject || null,
       text: text || null,
       html: html || null,
     });
