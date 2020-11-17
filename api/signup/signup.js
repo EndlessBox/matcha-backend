@@ -17,7 +17,7 @@ router.post('/', propValidator(validators.signUpProperties), validator(validator
     }
     catch (err) {
         let error = new Error(err.message);
-        error.status = 400;
+        error.status = err.status || 500;
         next(error);
     }
 });
