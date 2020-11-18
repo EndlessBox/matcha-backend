@@ -5,13 +5,15 @@
  */
 module.exports = {
     properties: {
-        signUpProperties: ["email", "userName", "firstName", "lastName", "password"]
+        signUpProperties: ["email", "userName", "firstName", "lastName", "password"],
+        mailValidation: ["mailToken"]
     },
     regex: {
         email: /(?<recipient>^[a-zA-Z0-9][\w\.\-!#$%&'*+-\/=?^`{}|]{0,64})@(?<domainName>(?:\w{1,63}\.){1,8})(?<topLevelDomain>[a-zA-Z]{2,63})$/g,
         userName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         firstName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         lastName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
-        password: /.{5,100}/
+        password: /.{5,100}/,
+        mailToken: /[a-zA-Z0-9]{256}/
     }
 }

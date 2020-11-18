@@ -1,26 +1,25 @@
-var express = require('express');
-var router = express.Router();
+var router = require('express').Router();
 var validators = require('../../validators').properties;
+const userModel = require('../../models/user');
 var propValidator = require('../../validators/functionalities/propertiesValidator');
 var valueValidator = require('../../validators/functionalities/valuesValidator');
 var userService = require('../../services/userService');
 
-
-router.post('/', propValidator(validators.signUpProperties), valueValidator(validators.signUpProperties).valueValidator, async (req, res, next) => {
-    try {
-        var response = {
+router.post('/',propValidator(validators.mailValidation), valueValidator(validators.mailValidation).valueValidator, async (req, res, next) => {
+    try{
+        var userServ = new userService();
+        await userServ.activateEmail(req.body);
+        var response  = {
             status: 200,
-            userId: await new userService().signup(req.body),
-            message: 'signed up succefully, please verifiy your email'
+            message: "Account activated succefully."
         }
         res.status(200).json(response);
     }
-    catch (err) {
+    catch(err){
         let error = new Error(err.message);
         error.status = err.status || 500;
         next(error);
     }
-});
+})
 
 module.exports = router;
-

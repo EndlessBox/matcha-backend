@@ -1,15 +1,19 @@
 var crypto = require("crypto");
+var bcrypt = require("bcrypt");
 var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var emailService = require("./emailService");
-var emailConfig = require("../config/config").Mailing;
-var mailContent = require("../config/config").Contents.mailVerification;
+const config = require("../config/config");
+var emailConfig = config.Mailing;
+var mailContent = config.Contents.mailVerification;
 var validator = require("../validators/functionalities/valuesValidator")()
   .internValidator;
 
 module.exports = class userService {
   constructor() {}
-
+  /*
+   *  SetUp Expiration Date, and Format it to fit DateTime sql format.
+   */
   setUpActivationKey = async (user) => {
     let expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
     let activationKey = await promisify(crypto.randomBytes)(128);
@@ -17,9 +21,15 @@ module.exports = class userService {
     user.expirationDate = expirationDate
       .toISOString()
       .slice(0, 19)
-      .replace("T", " ");
+      // .replace("T", " ");
   };
 
+  /*
+   *  Sign Up : 1 - set up account activation key.
+                2 - crypte password.
+                3 - create user Model.
+                4 - send activation mail.
+   */
   async signup(user) {
     return await new Promise(async (resolve, reject) => {
       try {
@@ -28,6 +38,7 @@ module.exports = class userService {
         let emailTransporter = emailServ.createTransporter();
 
         await this.setUpActivationKey(user);
+        user.password = await bcrypt.hash(user.password, config.hashRounds);
         let userId = await userModel.createUser(user);
         if (!validator("email", emailConfig.mailUserName)) {
           console.error("Error : Configuration Email is Invalide");
@@ -42,11 +53,36 @@ module.exports = class userService {
           mailContent.contentText,
           mailContent.contentHtml(user.userName, mailContent.link + `/${user.activationCode}`)
         );
+
         resolve(userId);
+
       } catch (err) {
         console.error(err);
         reject(err);
       }
     });
   }
+
+  async activateEmail (tokenPayload) {
+    return await new Promise(async (resolve, reject) => {
+      try {
+        var userModel = new UserModel();
+        var user = await userModel.getUserByAttribute('activationCode', tokenPayload.mailToken);
+        var nowDate = new Date();
+        var expirationDate = new Date(user.expirationDate);
+        if (user.active)
+          reject({message: "Account Already Activated.", status: '409'})
+        if (nowDate > expirationDate)
+          reject({message: "Token expired.", status:'406'});
+        await userModel.updateUserAttribute('active', 1, user.id);
+        resolve(true)
+      } catch (err) {
+        if (err.message == "user not found")
+          reject({message: "Token not found.", status:'406'});
+        reject(err);
+      }
+
+    })
+  }
+
 };
