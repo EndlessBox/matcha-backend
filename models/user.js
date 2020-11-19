@@ -53,4 +53,22 @@ module.exports = class userModel {
       }
     });
   }
+
+
+  async deleteUserAttribute(attribute, value) {
+    return new Promise(async (resolve, reject) => {
+      try {
+
+        const [result, _] = await dbConnection.query({
+          sql: `DELETE FROM \`user\` WHERE ${attribute}=?`,
+          timeout: 40000
+        },
+        value
+        );
+        resolve(true);
+      } catch (err) {
+        reject(err);
+      }
+    }) 
+  }
 };

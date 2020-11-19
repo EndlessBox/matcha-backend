@@ -4,6 +4,7 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var emailService = require("./emailService");
 const config = require("../config/config");
+const userModel = require("../models/user");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var validator = require("../validators/functionalities/valuesValidator")()
@@ -18,10 +19,8 @@ module.exports = class userService {
     let expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
     let activationKey = await promisify(crypto.randomBytes)(128);
     user.activationCode = activationKey.toString("hex");
-    user.expirationDate = expirationDate
-      .toISOString()
-      .slice(0, 19)
-      // .replace("T", " ");
+    user.expirationDate = expirationDate.toISOString().slice(0, 19);
+    // .replace("T", " ");
   };
 
   /*
@@ -32,57 +31,82 @@ module.exports = class userService {
    */
   async signup(user) {
     return await new Promise(async (resolve, reject) => {
-      try {
-        let userModel = new UserModel();
-        let emailServ = new emailService();
-        let emailTransporter = emailServ.createTransporter();
+      var userModel = new UserModel();
+      var userId = null;
+      var emailServ = new emailService();
+      var emailTransporter = emailServ.createTransporter();
 
+      try {
         await this.setUpActivationKey(user);
         user.password = await bcrypt.hash(user.password, config.hashRounds);
-        let userId = await userModel.createUser(user);
+        userId = await userModel.createUser(user);
         if (!validator("email", emailConfig.mailUserName)) {
           console.error("Error : Configuration Email is Invalide");
           reject({ message: "Internal Server Error.", status: 500 });
         }
-
-        emailServ.sendMail(
+        await emailServ.sendMail(
           emailTransporter,
           emailConfig.mailUserName,
           user.email,
           mailContent.subject,
           mailContent.contentText,
-          mailContent.contentHtml(user.userName, mailContent.link + `/${user.activationCode}`)
+          mailContent.contentHtml(
+            user.userName,
+            mailContent.link + `/${user.activationCode}`
+          )
         );
-
         resolve(userId);
-
       } catch (err) {
-        console.error(err);
+        /*
+         *  Error Management
+         */
+// ------------------Email errors need to move to email Service -----------------------------------
+        if (err.errno == -60 && err.code == "ESOCKET" && userId) {
+          console.error("Error : Configuration Mail host is Invalide");
+          await userModel.deleteUserAttribute("id", userId);
+          reject({ message: "Internal Server Error.", status: 500 });
+        } 
+        else if (err.errno == -3008 && err.code == "EDNS" && userId) {
+          console.error("Error : Configuration Mail host is Invalide");
+          await userModel.deleteUserAttribute("id", userId);
+          reject({ message: "Internal Server Error.", status: 500 });
+        } else if (err.responseCode == 535 && err.code == "EAUTH" && userId) {
+          console.error("Error : Configuration Email Or Password is Invalide");
+          await userModel.deleteUserAttribute("id", userId);
+          reject({ message: "Internal Server Error.", status: 500 });
+// ------------------------------------------------------------------------------------------------
+
+        } else if (err.errno == 1062 && err.code == "ER_DUP_ENTRY")
+          reject({ message: "Duplicated email or userName", status: 409 });
+      
+        if (userId)
+          await userModel.deleteUserAttribute("id", userId);
         reject(err);
       }
     });
   }
 
-  async activateEmail (tokenPayload) {
+  async activateEmail(tokenPayload) {
     return await new Promise(async (resolve, reject) => {
       try {
         var userModel = new UserModel();
-        var user = await userModel.getUserByAttribute('activationCode', tokenPayload.mailToken);
+        var user = await userModel.getUserByAttribute(
+          "activationCode",
+          tokenPayload.mailToken
+        );
         var nowDate = new Date();
         var expirationDate = new Date(user.expirationDate);
         if (user.active)
-          reject({message: "Account Already Activated.", status: '409'})
+          reject({ message: "Account Already Activated.", status: 409 });
         if (nowDate > expirationDate)
-          reject({message: "Token expired.", status:'406'});
-        await userModel.updateUserAttribute('active', 1, user.id);
-        resolve(true)
+          reject({ message: "Token expired.", status: 406 });
+        await userModel.updateUserAttribute("active", 1, user.id);
+        resolve(true);
       } catch (err) {
         if (err.message == "user not found")
-          reject({message: "Token not found.", status:'406'});
+          reject({ message: "Token not found.", status: 406 });
         reject(err);
       }
-
-    })
+    });
   }
-
 };
