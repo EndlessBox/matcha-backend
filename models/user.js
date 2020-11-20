@@ -32,7 +32,7 @@ module.exports = class userModel {
           value
         );
 
-        if (!result.length) reject({ message: "user not found" });
+        if (!result.length) reject({ message: "user not found"});
         resolve(result[0]);
       } catch (err) {
         reject(err);

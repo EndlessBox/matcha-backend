@@ -1,5 +1,6 @@
 const express = require('express');
 const errorHandler = require('./services/errorService');
+var morgan = require('morgan');
 
 
 module.exports = () => {
@@ -16,6 +17,12 @@ module.exports = () => {
             server.set('port', configuration.serverPort);
             server.set('hostname', configuration.serverHost);
 
+            /*
+             *  Debugging middleware.
+             */
+            server.use(morgan('tiny'));
+
+            
             server.use(express.json())
             server.use('/api', router);
             server.use(errorHandler);

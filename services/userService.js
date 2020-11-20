@@ -109,4 +109,23 @@ module.exports = class userService {
       }
     });
   }
+  
+
+  async signIn(payload) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let userModel = new UserModel();
+        let user = await userModel.getUserByAttribute('userName', payload.userName);
+        let authorized =  await bcrypt.compare(payload.password, user.password);
+        if (!authorized)
+          reject({message: "Incorrect password.", status: 401})
+        
+
+      } catch (error) {
+        if (error.message == "user not found")
+          reject({message: "User not found.", status: 404})
+        reject(error);
+      }
+    })
+  }
 };
