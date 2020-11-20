@@ -1,14 +1,13 @@
 var crypto = require("crypto");
 var bcrypt = require("bcrypt");
+var jwt = require("jsonwebtoken");
 var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var emailService = require("./emailService");
 const config = require("../config/config");
-const userModel = require("../models/user");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
-var validator = require("../validators/functionalities/valuesValidator")()
-  .internValidator;
+var validator = require("../validators/functionalities/valuesValidator")().internValidator;
 
 module.exports = class userService {
   constructor() {}
@@ -119,6 +118,14 @@ module.exports = class userService {
         let authorized =  await bcrypt.compare(payload.password, user.password);
         if (!authorized)
           reject({message: "Incorrect password.", status: 401})
+        let accessToken = jwt.sign({userName: user.userName}, config.accessKeySecret, {expiresIn: "15sec"});
+        let refreshToken = jwt.sign({userName: user.userName}, config.refreshKeySecret, {expiresIn: "1min"});
+        let response = {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        }
+        
+        resolve(response);
         
 
       } catch (error) {

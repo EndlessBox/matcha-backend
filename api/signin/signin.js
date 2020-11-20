@@ -9,7 +9,7 @@ router.post('/', propValidator(validators.signIn), valueValidator(validators.sig
     try {
         var response = {
             status: 200,
-            token: await new userService().signIn(req.body),
+            ...await new userService().signIn(req.body),
             message: 'signed in succefully.'
         }
 

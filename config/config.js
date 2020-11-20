@@ -5,6 +5,8 @@ module.exports = {
   serverHost: process.env.SERVER_HOST,
   nodeEnv: process.env.NODE_ENV || "developement",
   hashRounds: process.env.HASHROUNDS || 10,
+  accessKeySecret: process.env.ACCESS_KEY_SECRET,
+  refreshKeySecret: process.env.REFRESH_KEY_SECRET,
   Database: {
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,
