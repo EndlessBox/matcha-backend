@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = {
   serverPort: process.env.SERVER_PORT || 3000,
   serverHost: process.env.SERVER_HOST,
-  nodeEnv: process.env.NODE_ENV || "developement",
+  nodeEnv: process.env.NODE_ENV || "Developement",
   hashRounds: process.env.HASHROUNDS || 10,
   accessKeySecret: process.env.ACCESS_KEY_SECRET,
   refreshKeySecret: process.env.REFRESH_KEY_SECRET,

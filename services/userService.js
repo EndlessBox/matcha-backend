@@ -118,8 +118,10 @@ module.exports = class userService {
         let authorized =  await bcrypt.compare(payload.password, user.password);
         if (!authorized)
           reject({message: "Incorrect password.", status: 401})
-        let accessToken = jwt.sign({userName: user.userName}, config.accessKeySecret, {expiresIn: "15sec"});
-        let refreshToken = jwt.sign({userName: user.userName}, config.refreshKeySecret, {expiresIn: "1min"});
+        if (!user.active)
+          reject({message: "Account not activated.", status: 403})
+        let accessToken = jwt.sign({userName: user.userName}, config.accessKeySecret, {expiresIn: "10min"}); // expiration time need to be in the configuration
+        let refreshToken = jwt.sign({userName: user.userName}, config.refreshKeySecret, {expiresIn: "1day"});
         let response = {
           accessToken: accessToken,
           refreshToken: refreshToken,

@@ -1,6 +1,7 @@
 const express = require('express');
 const errorHandler = require('./services/errorService');
 var morgan = require('morgan');
+var cookieParser = require('cookie-parser')
 
 
 module.exports = () => {
@@ -23,6 +24,7 @@ module.exports = () => {
             server.use(morgan('tiny'));
 
             
+            server.use(cookieParser());
             server.use(express.json())
             server.use('/api', router);
             server.use(errorHandler);
