@@ -4,10 +4,14 @@ var signupRoutes = require('./signUp/signup');
 var emailActivationRoutes = require('./signUp/mailActivation');
 var signInRoutes = require('./signIn/signin');
 var authService = require('../services/authenticationService');
+var generateAccessToken = require('./generateAccessToken/genereteAccessToken');
+var forgotPassword = require('./managePassword/forgotPassword');
 
 router.use('/signup', signupRoutes);
 router.use('/mailActivation', emailActivationRoutes);
 router.use('/signIn', signInRoutes);
+router.use('/generateAccessToken', generateAccessToken)
+router.use('/forgotPassword', forgotPassword);
 
 
 /*

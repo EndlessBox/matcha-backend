@@ -19,17 +19,49 @@ module.exports = () => {
         activationCode,
         expirationDate,
         active,
+        refreshToken,
         ...user
       } = await userModel.getUserByAttribute("userName", payload.userName);
       req.body.user = user;
       next();
     } catch (err) {
-      console.error(err);
       next(err);
     }
   };
 
+  var generateAccessToken = (refreshToken) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!refreshToken) throw { message: "unauthorized", status: 401 };
 
+        let jwtVerification = promisify(jwt.verify);
+        await jwtVerification(refreshToken, config.refreshKeySecret);
 
-  return {checkAccessToken : checkAccessToken};
+        let userModel = new UserModel();
+        let tokenData = jwt.decode(refreshToken);
+        let user = await userModel.getUserByAttribute(
+          "userName",
+          tokenData.userName
+        );
+        if (user.refreshToken !== refreshToken)
+          throw { message: "unauthorized", status: 401 };
+
+        let newAccessToken = jwt.sign(
+          { userName: user.userName },
+          config.accessKeySecret,
+          { expiresIn: config.accessTokenExpiration }
+        );
+        resolve({ accessToken: newAccessToken });
+      } catch (err) {
+        if (err.message === 'jwt expired')
+          err.status = 401;
+        reject(err);
+      }
+    });
+  };
+
+  return {
+    checkAccessToken: checkAccessToken,
+    generateAccessToken: generateAccessToken,
+  };
 };

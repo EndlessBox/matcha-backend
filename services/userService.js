@@ -7,26 +7,28 @@ var emailService = require("./emailService");
 const config = require("../config/config");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
-var validator = require("../validators/functionalities/valuesValidator")().internValidator;
+var resetContent = config.Contents.passwordReset;
+
+var validator = require("../validators/functionalities/valuesValidator")()
+  .internValidator;
 
 module.exports = class userService {
   constructor() {}
   /*
    *  SetUp Expiration Date, and Format it to fit DateTime sql format.
    */
-  setUpActivationKey = async (user) => {
+  setUpActivationKey = async () => {
     let expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
     let activationKey = await promisify(crypto.randomBytes)(128);
-    user.activationCode = activationKey.toString("hex");
-    user.expirationDate = expirationDate.toISOString().slice(0, 19);
-    // .replace("T", " ");
+
+    return ({activationCode: activationKey.toString('hex'), expirationDate: expirationDate});
   };
 
   /*
    *  Sign Up : 1 - set up account activation key.
-                2 - crypte password.
-                3 - create user Model.
-                4 - send activation mail.
+   *            2 - crypte password.
+   *            3 - create user Model.
+   *            4 - send activation mail.
    */
   async signup(user) {
     return await new Promise(async (resolve, reject) => {
@@ -36,7 +38,9 @@ module.exports = class userService {
       var emailTransporter = emailServ.createTransporter();
 
       try {
-        await this.setUpActivationKey(user);
+        let activationObject = await this.setUpActivationKey(user);
+        user.activationCode = activationObject.activationCode;
+        user.expirationDate = activationObject.expirationDate;
         user.password = await bcrypt.hash(user.password, config.hashRounds);
         userId = await userModel.createUser(user);
         if (!validator("email", emailConfig.mailUserName)) {
@@ -51,7 +55,7 @@ module.exports = class userService {
           mailContent.contentText,
           mailContent.contentHtml(
             user.userName,
-            mailContent.link + `/${user.activationCode}`
+            mailContent.link(user.activationCode)
           )
         );
         resolve(userId);
@@ -59,13 +63,12 @@ module.exports = class userService {
         /*
          *  Error Management
          */
-// ------------------Email errors need to move to email Service -----------------------------------
+        // ------------------Email errors need to move to email Service -----------------------------------
         if (err.errno == -60 && err.code == "ESOCKET" && userId) {
           console.error("Error : Configuration Mail host is Invalide");
           await userModel.deleteUserAttribute("id", userId);
           reject({ message: "Internal Server Error.", status: 500 });
-        } 
-        else if (err.errno == -3008 && err.code == "EDNS" && userId) {
+        } else if (err.errno == -3008 && err.code == "EDNS" && userId) {
           console.error("Error : Configuration Mail host is Invalide");
           await userModel.deleteUserAttribute("id", userId);
           reject({ message: "Internal Server Error.", status: 500 });
@@ -73,13 +76,11 @@ module.exports = class userService {
           console.error("Error : Configuration Email Or Password is Invalide");
           await userModel.deleteUserAttribute("id", userId);
           reject({ message: "Internal Server Error.", status: 500 });
-// ------------------------------------------------------------------------------------------------
-
+          // ------------------------------------------------------------------------------------------------
         } else if (err.errno == 1062 && err.code == "ER_DUP_ENTRY")
           reject({ message: "Duplicated email or userName", status: 409 });
-      
-        if (userId)
-          await userModel.deleteUserAttribute("id", userId);
+
+        if (userId) await userModel.deleteUserAttribute("id", userId);
         reject(err);
       }
     });
@@ -108,33 +109,84 @@ module.exports = class userService {
       }
     });
   }
-  
 
   async signIn(payload) {
     return new Promise(async (resolve, reject) => {
       try {
         let userModel = new UserModel();
-        let user = await userModel.getUserByAttribute('userName', payload.userName);
-        let authorized =  await bcrypt.compare(payload.password, user.password);
+        let user = await userModel.getUserByAttribute(
+          "userName",
+          payload.userName
+        );
+        let authorized = await bcrypt.compare(payload.password, user.password);
         if (!authorized)
-          reject({message: "Incorrect password.", status: 401})
+          reject({ message: "Incorrect password.", status: 401 });
         if (!user.active)
-          reject({message: "Account not activated.", status: 403})
-        let accessToken = jwt.sign({userName: user.userName}, config.accessKeySecret, {expiresIn: "10min"}); // expiration time need to be in the configuration
-        let refreshToken = jwt.sign({userName: user.userName}, config.refreshKeySecret, {expiresIn: "1day"});
+          reject({ message: "Account not activated.", status: 403 });
+        let accessToken = jwt.sign(
+          { userName: user.userName },
+          config.accessKeySecret,
+          { expiresIn: config.accessTokenExpiration }
+        );
+        let refreshToken = jwt.sign(
+          { userName: user.userName },
+          config.refreshKeySecret,
+          { expiresIn: config.refreshTokenExpiration }
+        );
+        await userModel.updateUserAttribute(
+          "refreshToken",
+          refreshToken,
+          user.id
+        );
         let response = {
           accessToken: accessToken,
           refreshToken: refreshToken,
-        }
-        
-        resolve(response);
-        
+        };
 
+        resolve(response);
       } catch (error) {
         if (error.message == "user not found")
-          reject({message: "User not found.", status: 404})
+          reject({ message: "User not found.", status: 404 });
         reject(error);
       }
-    })
+    });
+  }
+
+  async forgotPassword(payload) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let userModel = new UserModel();
+        let user = await userModel.getUserByAttribute(
+          "userName",
+          payload.userName
+        );
+        if (!user) throw ({ message: "user not found", status: 404 });
+        if (user.email !== payload.email)
+          throw {
+            message: "Email sent don't belong to the given userName",
+            status: 403,
+          };
+
+        let emailServ = new emailService();
+        let emailTransporter = emailServ.createTransporter();
+        let resetObject = await this.setUpActivationKey();
+
+        await userModel.updateUserAttribute('resetPasswordToken', resetObject.activationCode, user.id);
+        await userModel.updateUserAttribute('resetPasswordExpirationDate', resetObject.expirationDate, user.id);
+
+        await emailServ.sendMail(
+          emailTransporter,
+          emailConfig.mailUserName,
+          user.email,
+          resetContent.subject,
+          resetContent.contentText,
+          resetContent.contentHtml(user.userName, resetContent.link(resetObject.activationCode)) // need code !
+        );
+        resolve({message: "Reset password email sent succefully, please check your email", status: 200});
+      } catch (error) {
+        console.error(error);
+        reject(error);
+      }
+    });
   }
 };

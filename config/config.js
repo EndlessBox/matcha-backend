@@ -7,6 +7,8 @@ module.exports = {
   hashRounds: process.env.HASHROUNDS || 10,
   accessKeySecret: process.env.ACCESS_KEY_SECRET,
   refreshKeySecret: process.env.REFRESH_KEY_SECRET,
+  accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION || '10min',
+  refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION || '1day',
   Database: {
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,
@@ -26,8 +28,15 @@ module.exports = {
       subject: "Email Verification",
       // contentText: (userName, link) => `Hello ${userName}, Please click the following link to activate your account :\n\t${link}`,
       contentText: null,
-      contentHtml: (userName, link) => `<h3>Hello ${userName}</h3>, <p>Please click the following link to activate your account :\n\t<a href="${link}">Verification Link</a></p>`,
-      link: "http://localhost:4200/verifyEmail"
+      contentHtml: (userName, link) => `<h3>Hello ${userName}</h3>, <p>Please click the following link to activate your account : <a href="${link}">Verification Link</a></p>`,
+      link: (activationCode) => `http://localhost:4200/verifyEmail/${activationCode}`
+    },
+    passwordReset: {
+      subject: "Password Reset",
+      contentText: null,
+      contentHtml: (userName, link) => `<h3>Hello ${userName}</h3>, <p>A Reset password demand was made using your email and userName, please click the following link to reset your password: <a href="${link}">Reset Password Link</a></p>
+        <p>If you didn't send any reset request, please ignore this email.</p>`,
+      link: (resetCode) => `http://localhost:4200/resetPassword/${resetCode}`
     }
   }
 };
