@@ -3,7 +3,7 @@ var authService = require("../../services/authenticationService");
 
 router.get("/", async (req, res, next) => {
   try {
-    let refreshToken = req.cookies.refreshToken?.refreshToken || null;
+    let refreshToken = req.cookies.refreshToken ? req.cookies.refreshToken.refreshToken : null;
     if (!refreshToken)
       next({message: "unauthorized.", status:"401"})
     let response = await authService().generateAccessToken(refreshToken)

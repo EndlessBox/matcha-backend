@@ -8,7 +8,8 @@ module.exports = {
         signUpProperties: ["email", "userName", "firstName", "lastName", "password"],
         mailValidation: ["mailToken"],
         signIn: ["userName", "password"],
-        forgetPassword: ["userName", "email"]
+        forgetPassword: ["userName", "email"],
+        resetPassword: ["password", "retryPassword", "passwordToken"]
     },
     regex: {
         email: /(?<recipient>^[a-zA-Z0-9][\w\.\-!#$%&'*+-\/=?^`{}|]{0,64})@(?<domainName>(?:\w{1,63}\.){1,8})(?<topLevelDomain>[a-zA-Z]{2,63})$/g,
@@ -16,6 +17,8 @@ module.exports = {
         firstName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         lastName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         password: /.{5,100}/,
-        mailToken: /[a-zA-Z0-9]{256}/
+        retryPassword: /.{5,100}/,
+        mailToken: /[a-zA-Z0-9]{256}/,
+        passwordToken: /[a-zA-Z0-9]{256}/
     }
 }

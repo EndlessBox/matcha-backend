@@ -5,6 +5,7 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var emailService = require("./emailService");
 const config = require("../config/config");
+const { response } = require("express");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -17,8 +18,8 @@ module.exports = class userService {
   /*
    *  SetUp Expiration Date, and Format it to fit DateTime sql format.
    */
-  setUpActivationKey = async () => {
-    let expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  setUpActivationKey = async (offset) => {
+    let expirationDate = new Date(Date.now() + offset);
     let activationKey = await promisify(crypto.randomBytes)(128);
 
     return ({activationCode: activationKey.toString('hex'), expirationDate: expirationDate});
@@ -38,7 +39,7 @@ module.exports = class userService {
       var emailTransporter = emailServ.createTransporter();
 
       try {
-        let activationObject = await this.setUpActivationKey(user);
+        let activationObject = await this.setUpActivationKey(24 * 60 * 60 * 1000);
         user.activationCode = activationObject.activationCode;
         user.expirationDate = activationObject.expirationDate;
         user.password = await bcrypt.hash(user.password, config.hashRounds);
@@ -169,7 +170,7 @@ module.exports = class userService {
 
         let emailServ = new emailService();
         let emailTransporter = emailServ.createTransporter();
-        let resetObject = await this.setUpActivationKey();
+        let resetObject = await this.setUpActivationKey(15 * 60 * 1000);
 
         await userModel.updateUserAttribute('resetPasswordToken', resetObject.activationCode, user.id);
         await userModel.updateUserAttribute('resetPasswordExpirationDate', resetObject.expirationDate, user.id);
@@ -180,7 +181,7 @@ module.exports = class userService {
           user.email,
           resetContent.subject,
           resetContent.contentText,
-          resetContent.contentHtml(user.userName, resetContent.link(resetObject.activationCode)) // need code !
+          resetContent.contentHtml(user.userName, resetContent.link(resetObject.activationCode))
         );
         resolve({message: "Reset password email sent succefully, please check your email", status: 200});
       } catch (error) {
@@ -188,5 +189,35 @@ module.exports = class userService {
         reject(error);
       }
     });
+  }
+
+  async updatePassword(payload) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (payload.password !== payload.retryPassword)
+          throw({message: "passwords dont match", status: 400});
+        let userModel = new UserModel();
+        let user = await userModel.getUserByAttribute('resetPasswordToken', payload.passwordToken);
+        
+        if (!user)
+          throw({message: "unauthorized.", status: 401});
+        
+          let expirationDate = new Date(user.resetPasswordExpirationDate);
+        
+        if (Date.now() > expirationDate)
+          throw({message: "Token expired.", status: 401});
+        if (payload.passwordToken !== user.resetPasswordToken)
+          throw({message: "Token Doesn't match, unauthorized.", status: 401});
+
+        let newPassword = await bcrypt.hash(payload.password, config.hashRounds);
+
+        await userModel.updateUserAttribute('password', newPassword, user.id);
+        await userModel.updateUserAttribute('refreshToken', null, user.id);
+        resolve({message: "Password updated succefully", status: 200});
+
+      } catch(err) {
+        reject(err);
+      }
+    })
   }
 };
