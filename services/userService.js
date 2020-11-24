@@ -22,7 +22,10 @@ module.exports = class userService {
     let expirationDate = new Date(Date.now() + offset);
     let activationKey = await promisify(crypto.randomBytes)(128);
 
-    return ({activationCode: activationKey.toString('hex'), expirationDate: expirationDate});
+    return {
+      activationCode: activationKey.toString("hex"),
+      expirationDate: expirationDate,
+    };
   };
 
   /*
@@ -39,7 +42,9 @@ module.exports = class userService {
       var emailTransporter = emailServ.createTransporter();
 
       try {
-        let activationObject = await this.setUpActivationKey(24 * 60 * 60 * 1000);
+        let activationObject = await this.setUpActivationKey(
+          24 * 60 * 60 * 1000
+        );
         user.activationCode = activationObject.activationCode;
         user.expirationDate = activationObject.expirationDate;
         user.password = await bcrypt.hash(user.password, config.hashRounds);
@@ -161,7 +166,7 @@ module.exports = class userService {
           "userName",
           payload.userName
         );
-        if (!user) throw ({ message: "user not found", status: 404 });
+        if (!user) throw { message: "user not found", status: 404 };
         if (user.email !== payload.email)
           throw {
             message: "Email sent don't belong to the given userName",
@@ -172,8 +177,16 @@ module.exports = class userService {
         let emailTransporter = emailServ.createTransporter();
         let resetObject = await this.setUpActivationKey(15 * 60 * 1000);
 
-        await userModel.updateUserAttribute('resetPasswordToken', resetObject.activationCode, user.id);
-        await userModel.updateUserAttribute('resetPasswordExpirationDate', resetObject.expirationDate, user.id);
+        await userModel.updateUserAttribute(
+          "resetPasswordToken",
+          resetObject.activationCode,
+          user.id
+        );
+        await userModel.updateUserAttribute(
+          "resetPasswordExpirationDate",
+          resetObject.expirationDate,
+          user.id
+        );
 
         await emailServ.sendMail(
           emailTransporter,
@@ -181,9 +194,16 @@ module.exports = class userService {
           user.email,
           resetContent.subject,
           resetContent.contentText,
-          resetContent.contentHtml(user.userName, resetContent.link(resetObject.activationCode))
+          resetContent.contentHtml(
+            user.userName,
+            resetContent.link(resetObject.activationCode)
+          )
         );
-        resolve({message: "Reset password email sent succefully, please check your email", status: 200});
+        resolve({
+          message:
+            "Reset password email sent succefully, please check your email",
+          status: 200,
+        });
       } catch (error) {
         console.error(error);
         reject(error);
@@ -195,29 +215,48 @@ module.exports = class userService {
     return new Promise(async (resolve, reject) => {
       try {
         if (payload.password !== payload.retryPassword)
-          throw({message: "passwords dont match", status: 400});
+          throw { message: "passwords dont match", status: 400 };
         let userModel = new UserModel();
-        let user = await userModel.getUserByAttribute('resetPasswordToken', payload.passwordToken);
-        
-        if (!user)
-          throw({message: "unauthorized.", status: 401});
-        
-          let expirationDate = new Date(user.resetPasswordExpirationDate);
-        
+        let user = await userModel.getUserByAttribute(
+          "resetPasswordToken",
+          payload.passwordToken
+        );
+
+        if (!user) throw { message: "unauthorized.", status: 401 };
+
+        let expirationDate = new Date(user.resetPasswordExpirationDate);
+
         if (Date.now() > expirationDate)
-          throw({message: "Token expired.", status: 401});
+          throw { message: "Token expired.", status: 401 };
         if (payload.passwordToken !== user.resetPasswordToken)
-          throw({message: "Token Doesn't match, unauthorized.", status: 401});
+          throw { message: "Token Doesn't match, unauthorized.", status: 401 };
 
-        let newPassword = await bcrypt.hash(payload.password, config.hashRounds);
+        let newPassword = await bcrypt.hash(
+          payload.password,
+          config.hashRounds
+        );
 
-        await userModel.updateUserAttribute('password', newPassword, user.id);
-        await userModel.updateUserAttribute('refreshToken', null, user.id);
-        resolve({message: "Password updated succefully", status: 200});
-
-      } catch(err) {
+        await userModel.updateUserAttribute("password", newPassword, user.id);
+        await this.logout(user.userName);
+        resolve({ message: "Password updated succefully", status: 200 });
+      } catch (err) {
         reject(err);
       }
-    })
+    });
+  }
+
+  logout(payload) {
+    return new Promise( async(resolve, reject) => {
+      try {
+        let userModel = new UserModel();
+        let user = await userModel.getUserByAttribute('userName', payload.userName);
+        if (!user)
+            throw ({message: "user Not found", status: 404});
+        await userModel.updateUserAttribute('refreshToken', null, user.id);
+        resolve({message: "logged out succefully.", status: 200});
+      } catch (err) {
+          reject(err);
+      }
+    });
   }
 };
