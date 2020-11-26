@@ -64,5 +64,28 @@ module.exports = (fields = null) => {
     next();
   };
 
-  return { valueValidator: valueValidator, internValidator: internValidator };
+  /*
+   *  pickData(req, res, next) :  run Validation only on fields wanted by the route. other fields are ignored.
+   *                              and they will presiste in the request body.
+   */
+
+  var pickData = (req, res, next) => {
+    var data = req.body;
+    var invalidFields = [];
+
+    Object.keys(pickData).map(key => {
+      if (fields.includes(key) && !internValidator(key, data[key]))
+          invalidFields.push(key);
+    })
+    
+    if (invalidFields.length)
+    {
+      error = new Error(`Invalide Fields : ${invalidFields}.`);
+      error.status = 400;
+      next(error);
+    }
+    next();
+  }
+
+  return { valueValidator: valueValidator, internValidator: internValidator, pickData: pickData };
 };

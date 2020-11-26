@@ -6,7 +6,7 @@ var valueValidator = require('../../validators/functionalities/valuesValidator')
 
 
 
-router.post('/',valueValidator(validators.updateUser).valueValidator, async (req, res, next) => {
+router.post('/', valueValidator().pickData, async (req, res, next) => {
     try {
     let userServ = new userService();
     let result = await userServ.updateUser(req.body);
