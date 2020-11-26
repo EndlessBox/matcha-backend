@@ -40,10 +40,10 @@ module.exports = (fields = null) => {
         break;
       case "bio":
         var bioRegex = new RegExp(regex.bio);
-        if (!bioRegex) return false;
+        if (!bioRegex.test(data)) return false;
       case "tag":
         var tagRegex = new RegExp(regex.tag);
-        if (!tagRegex) return false;
+        if (!tagRegex.test(data)) return false;
     }
     return true;
   };
@@ -73,11 +73,14 @@ module.exports = (fields = null) => {
     var data = req.body;
     var invalidFields = [];
 
-    Object.keys(pickData).map(key => {
+    Object.keys(data).map(key => {
       if (fields.includes(key) && !internValidator(key, data[key]))
+      {
+        console.log("hello");
           invalidFields.push(key);
+      }
     })
-    
+
     if (invalidFields.length)
     {
       error = new Error(`Invalide Fields : ${invalidFields}.`);
