@@ -1,7 +1,7 @@
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
     var regex = require("../index").regex;
-    
+
     switch (field) {
       case "email":
         var mailRegex = new RegExp(regex.email);
@@ -30,9 +30,20 @@ module.exports = (fields = null) => {
         break;
       case "mailToken":
         var mailTokenRegex = new RegExp(regex.mailToken);
-        if (data.length != 256 || !mailTokenRegex.test(data))
-          return false;
+        if (data.length != 256 || !mailTokenRegex.test(data)) return false;
         break;
+      case "genderId":
+        if (typeof data != "number") return false;
+        break;
+      case "orientationId":
+        if (typeof data != "number") return false;
+        break;
+      case "bio":
+        var bioRegex = new RegExp(regex.bio);
+        if (!bioRegex) return false;
+      case "tag":
+        var tagRegex = new RegExp(regex.tag);
+        if (!tagRegex) return false;
     }
     return true;
   };

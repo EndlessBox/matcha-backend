@@ -10,7 +10,8 @@ module.exports = {
         signIn: ["userName", "password"],
         forgetPassword: ["userName", "email"],
         resetPassword: ["password", "retryPassword", "passwordToken"],
-        logOut: ["userName"]
+        logOut: ["userName"],
+        updateUser: ["email", "firstName", "lastName", "password", "retryPassword", "genderId", "orientationId", "bio"]
     },
     regex: {
         email: /(?<recipient>^[a-zA-Z0-9][\w\.\-!#$%&'*+-\/=?^`{}|]{0,64})@(?<domainName>(?:\w{1,63}\.){1,8})(?<topLevelDomain>[a-zA-Z]{2,63})$/g,
@@ -20,6 +21,8 @@ module.exports = {
         password: /.{5,100}/,
         retryPassword: /.{5,100}/,
         mailToken: /[a-zA-Z0-9]{256}/,
-        passwordToken: /[a-zA-Z0-9]{256}/
+        passwordToken: /[a-zA-Z0-9]{256}/,
+        bio: /.*/,
+        tag: /#[a-zA-Z0-9]{2,15}/,
     }
 }

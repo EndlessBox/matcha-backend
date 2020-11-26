@@ -5,10 +5,10 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var emailService = require("./emailService");
 const config = require("../config/config");
-const { response } = require("express");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
+var fields = require('../validators').properties;
 
 var validator = require("../validators/functionalities/valuesValidator")()
   .internValidator;
@@ -29,17 +29,34 @@ module.exports = class userService {
   };
 
   /*
+   *  Setup User Object => set up a safe object accroding to the fields passed.
+   *                    => fields represent the value that the routes accepts.
+   */
+
+   setUpUserObject = (payload, fields) => {
+    let result = {};
+    
+    fields.map(field => {
+      if (payload[field])
+        result[field] = payload[field];
+    })
+    return (result);
+   }
+
+  /*
    *  Sign Up : 1 - set up account activation key.
    *            2 - crypte password.
    *            3 - create user Model.
    *            4 - send activation mail.
    */
-  async signup(user) {
+  async signup(payload) {
     return await new Promise(async (resolve, reject) => {
       var userModel = new UserModel();
       var userId = null;
       var emailServ = new emailService();
       var emailTransporter = emailServ.createTransporter();
+      var user = this.setUpUserObject(payload, fields.signUpProperties);
+      console.log(user);
 
       try {
         let activationObject = await this.setUpActivationKey(
@@ -259,4 +276,30 @@ module.exports = class userService {
       }
     });
   }
+
+
+  updateUser(payload) {
+    return new Promise(async (resolve, reject) => {
+      try {
+
+        let userModel = new UserModel();
+        let userData = this.setUpUserObject(payload, fields.updateUser);
+        if (userData.password && userData.password !== userData.retryPassword)
+          reject({message: "password's doesnt match.", status: 400});
+        else if (userData.password && userData.password === userData.retryPassword)
+        {
+          delete userData.retryPassword;
+          userData.password = await bcrypt.hash(userData.password, config.hashRounds);
+        }
+        await userModel.updateUser(userData, payload.user.id);
+        resolve({message: "user updated succefully", status: 200});
+
+      } catch (err) {
+        reject(err);
+      }
+    })
+  }
+
+
+
 };

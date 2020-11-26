@@ -1,5 +1,6 @@
 const express = require('express');
 var router = express.Router();
+var authentication = require('../services/authenticationService')().checkAccessToken;
 var signupRoutes = require('./signup/signup');
 var emailActivationRoutes = require('./signup/mailActivation');
 var signInRoutes = require('./signIn_Out/signin');
@@ -8,6 +9,7 @@ var generateAccessToken = require('./generateAccessToken/genereteAccessToken');
 var forgotPassword = require('./managePassword/forgotPassword');
 var resetPassword = require('./managePassword/resetPassword');
 var logout = require('./signIn_Out/signout');
+var updateProfile = require('./userProfil/updateProfile');
 
 router.use('/signup', signupRoutes);
 router.use('/mailActivation', emailActivationRoutes);
@@ -15,8 +17,10 @@ router.use('/signIn', signInRoutes);
 router.use('/generateAccessToken', generateAccessToken)
 router.use('/forgotPassword', forgotPassword);
 router.use('/resetPassword', resetPassword);
-router.use('/logout', logout);
+router.use('/logout', authentication, logout);
 
+
+router.use('/updateProfile',authentication, updateProfile);
 
 /*
  *  Need to remove this route, just for testing ! 

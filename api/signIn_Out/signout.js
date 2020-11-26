@@ -2,13 +2,12 @@ var router = require('express').Router();
 var validators = require('../../validators').properties;
 var valueValidators = require('../../validators/functionalities/valuesValidator');
 var propValidators = require('../../validators/functionalities//propertiesValidator');
-var authentication = require('../../services/authenticationService')().checkAccessToken;
 var userService = require('../../services/userService');
 var config = require('../../config/config')
 
 
 
-router.post('/', authentication, propValidators(validators.logOut), valueValidators(validators.logOut).valueValidator, async (req, res, next) => {
+router.post('/', propValidators(validators.logOut), valueValidators(validators.logOut).valueValidator, async (req, res, next) => {
     try {
         var userServ = new userService();
 
