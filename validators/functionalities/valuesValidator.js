@@ -41,9 +41,17 @@ module.exports = (fields = null) => {
       case "bio":
         var bioRegex = new RegExp(regex.bio);
         if (!bioRegex.test(data)) return false;
-      case "tag":
-        var tagRegex = new RegExp(regex.tag);
-        if (!tagRegex.test(data)) return false;
+        break;
+      case "tags":
+        var tagRegex = new RegExp(regex.tags);
+        var invalideTags = [];
+        data.map((tag) => {
+          if (!tagRegex.test(tag)) 
+            invalideTags.push(tag);
+        });
+        if (invalideTags.length)
+          return false;
+        break;
     }
     return true;
   };
@@ -73,22 +81,23 @@ module.exports = (fields = null) => {
     var data = req.body;
     var invalidFields = [];
 
-    Object.keys(data).map(key => {
+    Object.keys(data).map((key) => {
+      console.log(key);
       if (fields.includes(key) && !internValidator(key, data[key]))
-      {
-        console.log("hello");
-          invalidFields.push(key);
-      }
-    })
-
-    if (invalidFields.length)
-    {
+        invalidFields.push(key);
+      });
+    
+    if (invalidFields.length) {
       error = new Error(`Invalide Fields : ${invalidFields}.`);
       error.status = 400;
       next(error);
     }
     next();
-  }
+  };
 
-  return { valueValidator: valueValidator, internValidator: internValidator, pickData: pickData };
+  return {
+    valueValidator: valueValidator,
+    internValidator: internValidator,
+    pickData: pickData,
+  };
 };

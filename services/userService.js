@@ -3,6 +3,7 @@ var bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
 var promisify = require("util").promisify;
 var UserModel = require("../models/user");
+var TagModel = require("../models/tag");
 var emailService = require("./emailService");
 const config = require("../config/config");
 var emailConfig = config.Mailing;
@@ -283,7 +284,14 @@ module.exports = class userService {
       try {
 
         let userModel = new UserModel();
+        let tagModel = new TagModel();
         let userData = this.setUpUserObject(payload, fields.updateUser);
+        
+        let {resultId, offset} = await tagModel.createTag(userData.tags);
+        delete userData.tags
+
+        await tagModel.tag_user(resultId, offset, payload.user.id);
+        
         if (userData.password && userData.password !== userData.retryPassword)
           reject({message: "password's doesnt match.", status: 400});
         else if (userData.password && userData.password === userData.retryPassword)
