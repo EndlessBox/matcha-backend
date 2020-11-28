@@ -18,7 +18,6 @@ module.exports = class tagModel {
         },
         [tags]
         );
-        console.log(results);
         resolve({resultId: results.insertId, offset: results.affectedRows});
       } catch (error) {
           reject(error);
@@ -27,21 +26,22 @@ module.exports = class tagModel {
   }
 
 
-  async tag_user(tagId, tagOffset, userId) {
-    return new Promise((resolve, reject) => {
+  async tag_user(tagId, userId) {
+    return new Promise(async (resolve, reject) => {
       try {
-        var tagsUser= [];
-        var stop = tagId + tagOffset
-        while (tagId < stop)
-        {
-            tagsUser.push([tagId, userId]);
-            tagId++;
-        }
-        // const [results, _] = await dbConnection.query({
-        //   sql: "INSERT INTO"
-        // })
 
-        resolve(true);
+        let mockUserTag = {
+          id: null,
+          tagId: tagId,
+          userId: userId
+        }
+
+        let [results, _] = await dbConnection.query({
+          sql: "INSERT INTO user_tag SET ?",
+          timeout: 40000
+       }, mockUserTag);
+
+       resolve(results[0]);
       } catch (error) {
         console.error(error);
         reject(error);
@@ -49,4 +49,21 @@ module.exports = class tagModel {
     });
   }
 
+
+  async getTagByAttribute(attribute, value) {
+    return new Promise(async (resolve, reject) => {
+      try {
+          let [results, _] = await dbConnection.query({
+            sql: `SELECT * FROM tag WHERE ${attribute}=?`,
+            timeout: 40000 
+          }, 
+          value
+          )
+          resolve(results[0]);
+      } catch (error) {
+          reject(error);
+      }
+
+    })
+  }
 };

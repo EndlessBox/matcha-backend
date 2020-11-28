@@ -9,7 +9,7 @@ const config = require("../config/config");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
-var fields = require('../validators').properties;
+var fields = require("../validators").properties;
 
 var validator = require("../validators/functionalities/valuesValidator")()
   .internValidator;
@@ -34,15 +34,14 @@ module.exports = class userService {
    *                    => fields represent the value that the routes accepts.
    */
 
-   setUpUserObject = (payload, fields) => {
+  setUpUserObject = (payload, fields) => {
     let result = {};
-    
-    fields.map(field => {
-      if (payload[field])
-        result[field] = payload[field];
-    })
-    return (result);
-   }
+
+    fields.map((field) => {
+      if (payload[field]) result[field] = payload[field];
+    });
+    return result;
+  };
 
   /*
    *  Sign Up : 1 - set up account activation key.
@@ -264,50 +263,64 @@ module.exports = class userService {
   }
 
   logout(payload) {
-    return new Promise( async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let userModel = new UserModel();
-        let user = await userModel.getUserByAttribute('userName', payload.userName);
-        if (!user)
-            throw ({message: "user Not found", status: 404});
-        await userModel.updateUserAttribute('refreshToken', null, user.id);
-        resolve({message: "logged out succefully.", status: 200});
+        let user = await userModel.getUserByAttribute(
+          "userName",
+          payload.userName
+        );
+        if (!user) throw { message: "user Not found", status: 404 };
+        await userModel.updateUserAttribute("refreshToken", null, user.id);
+        resolve({ message: "logged out succefully.", status: 200 });
       } catch (err) {
-          reject(err);
+        reject(err);
       }
     });
   }
 
-
-  updateUser(payload) {
+  async updateUser(payload) {
     return new Promise(async (resolve, reject) => {
       try {
-
         let userModel = new UserModel();
         let tagModel = new TagModel();
         let userData = this.setUpUserObject(payload, fields.updateUser);
-        
-        let {resultId, offset} = await tagModel.createTag(userData.tags);
-        delete userData.tags
 
-        await tagModel.tag_user(resultId, offset, payload.user.id);
-        
+        if (userData.tags) {
+          userData.tags.map(async (tag) => {
+            try {
+              let { resultId, offset } = await tagModel.createTag([tag]);
+              if (offset === 0) {
+                let result = await tagModel.getTagByAttribute("tag", tag);
+                if (result.id !== 0) 
+                  await tagModel.tag_user(result.id, payload.user.id);
+              } 
+              else await tagModel.tag_user(resultId, payload.user.id);
+            } catch (err) {
+              reject(err);
+            }
+            
+          });
+          delete userData.tags;
+        }
+
         if (userData.password && userData.password !== userData.retryPassword)
-          reject({message: "password's doesnt match.", status: 400});
-        else if (userData.password && userData.password === userData.retryPassword)
-        {
+          reject({ message: "password's doesnt match.", status: 400 });
+        else if (
+          userData.password &&
+          userData.password === userData.retryPassword
+        ) {
           delete userData.retryPassword;
-          userData.password = await bcrypt.hash(userData.password, config.hashRounds);
+          userData.password = await bcrypt.hash(
+            userData.password,
+            config.hashRounds
+          );
         }
         await userModel.updateUser(userData, payload.user.id);
-        resolve({message: "user updated succefully", status: 200});
-
+        resolve({ message: "user updated succefully", status: 200 });
       } catch (err) {
         reject(err);
       }
-    })
+    });
   }
-
-
-
 };
