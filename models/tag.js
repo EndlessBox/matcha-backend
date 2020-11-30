@@ -43,7 +43,6 @@ module.exports = class tagModel {
 
        resolve(results[0]);
       } catch (error) {
-        console.error(error);
         reject(error);
       }
     });

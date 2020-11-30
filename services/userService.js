@@ -292,17 +292,23 @@ module.exports = class userService {
               let { resultId, offset } = await tagModel.createTag([tag]);
               if (offset === 0) {
                 let result = await tagModel.getTagByAttribute("tag", tag);
-                if (result.id !== 0) 
+                if (result.id !== 0)
                   await tagModel.tag_user(result.id, payload.user.id);
-              } 
-              else await tagModel.tag_user(resultId, payload.user.id);
+              } else await tagModel.tag_user(resultId, payload.user.id);
             } catch (err) {
-              reject(err);
+              if (err.code === "ER_DUP_ENTRY")
+                console.log(
+                  new Date().toLocaleDateString(),
+                  err.sqlMessage,
+                  "UserName: " + payload.user.userName
+                );
+              else reject(err);
             }
-            
           });
           delete userData.tags;
         }
+
+        
 
         if (userData.password && userData.password !== userData.retryPassword)
           reject({ message: "password's doesnt match.", status: 400 });

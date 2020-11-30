@@ -82,7 +82,6 @@ module.exports = (fields = null) => {
     var invalidFields = [];
 
     Object.keys(data).map((key) => {
-      console.log(key);
       if (fields.includes(key) && !internValidator(key, data[key]))
         invalidFields.push(key);
       });
