@@ -4,6 +4,8 @@ var jwt = require("jsonwebtoken");
 var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var TagModel = require("../models/tag");
+var GenderModel = require("../models/gender");
+var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 const config = require("../config/config");
 var emailConfig = config.Mailing;
@@ -56,7 +58,6 @@ module.exports = class userService {
       var emailServ = new emailService();
       var emailTransporter = emailServ.createTransporter();
       var user = this.setUpUserObject(payload, fields.signUpProperties);
-      console.log(user);
 
       try {
         let activationObject = await this.setUpActivationKey(
@@ -279,36 +280,69 @@ module.exports = class userService {
     });
   }
 
+  async manageTags(userData, user) {
+    let tagModel = new TagModel();
+
+    userData.tags.map(async (tag) => {
+      try {
+        let { resultId, offset } = await tagModel.createTag([tag]);
+        if (offset === 0) {
+          let result = await tagModel.getTagByAttribute("tag", tag);
+          if (result.id !== 0) await tagModel.tag_user(result.id, user.id);
+        } else await tagModel.tag_user(resultId, user.id);
+      } catch (err) {
+        if (err.code === "ER_DUP_ENTRY")
+          console.log(
+            new Date().toLocaleDateString(),
+            err.sqlMessage,
+            "-- UserName: " + user.userName
+          );
+        else throw err;
+      }
+    });
+    delete userData.tags;
+  }
+
+  async manageGender(userData, user) {
+    let genderModel = new GenderModel();
+    let userModel = new UserModel();
+    let gender = userData.gender;
+
+    let result = await genderModel.getGenderByAttribute("gender", gender);
+    if (!result) throw "Invalide gender.";
+    await userModel.updateUserAttribute("genderId", result.id, user.id);
+    delete userData.gender;
+  }
+
+  async manageOrientation(userData, user) {
+    let orientationModel = new OrientationModel();
+    let userModel = new UserModel();
+    let orientation = userData.orientation;
+
+    let result = await orientationModel.getOrientationByAttribute(
+      "orientation",
+      orientation
+    );
+    if (!result) throw "Invalide orientation.";
+    await userModel.updateUserAttribute("orientationId", result.id, user.id);
+    delete userData.orientation;
+  }
+
   async updateUser(payload) {
     return new Promise(async (resolve, reject) => {
       try {
         let userModel = new UserModel();
-        let tagModel = new TagModel();
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
-        if (userData.tags) {
-          userData.tags.map(async (tag) => {
-            try {
-              let { resultId, offset } = await tagModel.createTag([tag]);
-              if (offset === 0) {
-                let result = await tagModel.getTagByAttribute("tag", tag);
-                if (result.id !== 0)
-                  await tagModel.tag_user(result.id, payload.user.id);
-              } else await tagModel.tag_user(resultId, payload.user.id);
-            } catch (err) {
-              if (err.code === "ER_DUP_ENTRY")
-                console.log(
-                  new Date().toLocaleDateString(),
-                  err.sqlMessage,
-                  "UserName: " + payload.user.userName
-                );
-              else reject(err);
-            }
-          });
-          delete userData.tags;
-        }
+        if (userData.tags) await this.manageTags(userData, payload.user);
 
-        
+          console.log(payload);
+        if (userData.gender) 
+          await this.manageGender(userData, payload.user);
+
+        if (userData.orientation)
+          await this.manageOrientation(userData, payload.user);
+          
 
         if (userData.password && userData.password !== userData.retryPassword)
           reject({ message: "password's doesnt match.", status: 400 });
@@ -325,6 +359,11 @@ module.exports = class userService {
         await userModel.updateUser(userData, payload.user.id);
         resolve({ message: "user updated succefully", status: 200 });
       } catch (err) {
+        if (err === "Invalide gender." || err === "Invalide orientation.") {
+          reject({ message: err, status: 400 });
+          return;
+        }
+        console.log(err);
         reject(err);
       }
     });

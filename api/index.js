@@ -11,6 +11,11 @@ var resetPassword = require('./managePassword/resetPassword');
 var logout = require('./signIn_Out/signout');
 var updateProfile = require('./userProfil/updateProfile');
 
+
+var path = require('path');
+var multer = require('multer');
+var upload = multer({dest:  path.join( __dirname ,'uploads')});
+
 router.use('/signup', signupRoutes);
 router.use('/mailActivation', emailActivationRoutes);
 router.use('/signIn', signInRoutes);
@@ -19,8 +24,10 @@ router.use('/forgotPassword', forgotPassword);
 router.use('/resetPassword', resetPassword);
 router.use('/logout', authentication, logout);
 
-
 router.use('/updateProfile',authentication, updateProfile);
+
+
+// router.use('/updateProfile',authentication, upload.array('images', 5) , updateProfile);
 
 /*
  *  Need to remove this route, just for testing ! 
