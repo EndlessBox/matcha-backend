@@ -9,11 +9,10 @@ var valueValidator = require('../../validators/functionalities/valuesValidator')
 router.post('/', valueValidator(validators.updateUser).pickData, async (req, res, next) => {
     try {
     let userServ = new userService();
-    let result = await userServ.updateUser(req.body);
+    let result = await userServ.updateUser(req.body, req.user);
     res.status(200).json(result);
     }
     catch(err) {
-        console.error(err);
         next(err);
     }
 })

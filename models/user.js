@@ -61,7 +61,7 @@ module.exports = class userModel {
     return new Promise(async (resolve, reject) => {
       try {
         const [result, _] = await dbConnection.query({
-          sql: "UPDATE `user` SET ? WHERE id = ?",
+          sql: "UPDATE `user` SET ? WHERE id=?",
           timeout: 40000
         }, [newUser, userId])
         resolve(true)

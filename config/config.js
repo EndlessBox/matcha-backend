@@ -3,12 +3,19 @@ require("dotenv").config();
 module.exports = {
   serverPort: process.env.SERVER_PORT || 3000,
   serverHost: process.env.SERVER_HOST,
+  
   nodeEnv: process.env.NODE_ENV || "Developement",
+  
   hashRounds: process.env.HASHROUNDS || 10,
+
   accessKeySecret: process.env.ACCESS_KEY_SECRET,
   refreshKeySecret: process.env.REFRESH_KEY_SECRET,
-  accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION || '10min',
+  accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION || '1day', // must be shorter ! 
   refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION || '1day',
+
+
+  imagesUploadLocation: process.env.IMAGES_UPLOAD_LOCATION || '../uploads',
+
   Database: {
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,

@@ -8,6 +8,7 @@ var GenderModel = require("../models/gender");
 var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 const config = require("../config/config");
+const { error } = require("console");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -328,20 +329,20 @@ module.exports = class userService {
     delete userData.orientation;
   }
 
-  async updateUser(payload) {
+  async updateUser(payload, user) {
     return new Promise(async (resolve, reject) => {
       try {
+
         let userModel = new UserModel();
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
-        if (userData.tags) await this.manageTags(userData, payload.user);
+        if (userData.tags) await this.manageTags(userData, user);
 
-          console.log(payload);
         if (userData.gender) 
-          await this.manageGender(userData, payload.user);
+          await this.manageGender(userData, user);
 
         if (userData.orientation)
-          await this.manageOrientation(userData, payload.user);
+          await this.manageOrientation(userData, user);
           
 
         if (userData.password && userData.password !== userData.retryPassword)
@@ -356,7 +357,8 @@ module.exports = class userService {
             config.hashRounds
           );
         }
-        await userModel.updateUser(userData, payload.user.id);
+        if (Object.keys(userData).length) 
+          await userModel.updateUser(userData, user.id);
         resolve({ message: "user updated succefully", status: 200 });
       } catch (err) {
         if (err === "Invalide gender." || err === "Invalide orientation.") {
