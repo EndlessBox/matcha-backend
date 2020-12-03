@@ -57,6 +57,9 @@ module.exports = class userModel {
     });
   }
 
+  /*
+   *  Need to remove it unused function I GUESSS !
+   */
   async updateUser(newUser, userId) {
     return new Promise(async (resolve, reject) => {
       try {

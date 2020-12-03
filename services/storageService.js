@@ -10,7 +10,6 @@ module.exports = multer.diskStorage({
 
     try {
       await fs.promises.access(upPath);
-    //   console.log(file);
       cb(null, upPath);
     } catch (err) {
       if (err.syscall == "access" && err.code == "ENOENT") {
@@ -24,7 +23,9 @@ module.exports = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-      co
-    cb(null, file.originalname);
-  },
+    cb(null, Date.now() + '_' + file.originalname);
+  }
 });
+
+
+

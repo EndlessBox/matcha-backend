@@ -5,10 +5,13 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var TagModel = require("../models/tag");
 var GenderModel = require("../models/gender");
+var ImageModel = require("../models/image");
 var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 const config = require("../config/config");
-const { error } = require("console");
+const dbConnection = require("../models/dbConnection");
+const { count } = require("console");
+const { exit } = require("process");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -329,14 +332,35 @@ module.exports = class userService {
     delete userData.orientation;
   }
 
-  async updateUser(payload, user) {
+  async manageImages(images, userId){
+
+
+    let imageModel = new ImageModel();
+    let imageCount = await imageModel.getImagesCountByAttribute('userId', userId);
+
+
+    images.map(async image => {
+      if (imageCount < 5)
+      {
+        imageCount += 1;
+        await imageModel.createImage({userId:userId, image: image.filename})
+      }
+    })
+  }
+
+  async updateUser(payload, user, images=null) {
     return new Promise(async (resolve, reject) => {
       try {
 
         let userModel = new UserModel();
+        
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
+
         if (userData.tags) await this.manageTags(userData, user);
+
+
+        if (images) await this.manageImages(images, user.id);
 
         if (userData.gender) 
           await this.manageGender(userData, user);
@@ -365,6 +389,7 @@ module.exports = class userService {
           reject({ message: err, status: 400 });
           return;
         }
+        if (err)
         console.log(err);
         reject(err);
       }
