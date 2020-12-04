@@ -24,7 +24,7 @@ module.exports = () => {
         resetPasswordExpirationDate,
         ...user
       } = await userModel.getUserByAttribute("userName", payload.userName);
-      req.body.user = user;
+      req.user = user;
       next();
     } catch (err) {
       next(err);

@@ -1,7 +1,7 @@
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
     var regex = require("../index").regex;
-    
+
     switch (field) {
       case "email":
         var mailRegex = new RegExp(regex.email);
@@ -30,7 +30,26 @@ module.exports = (fields = null) => {
         break;
       case "mailToken":
         var mailTokenRegex = new RegExp(regex.mailToken);
-        if (data.length != 256 || !mailTokenRegex.test(data))
+        if (data.length != 256 || !mailTokenRegex.test(data)) return false;
+        break;
+      case "genderId":
+        if (typeof data != "number") return false;
+        break;
+      case "orientationId":
+        if (typeof data != "number") return false;
+        break;
+      case "bio":
+        var bioRegex = new RegExp(regex.bio);
+        if (!bioRegex.test(data)) return false;
+        break;
+      case "tags":
+        var tagRegex = new RegExp(regex.tags);
+        var invalideTags = [];
+        data.map((tag) => {
+          if (!tagRegex.test(tag)) 
+            invalideTags.push(tag);
+        });
+        if (invalideTags.length)
           return false;
         break;
     }
@@ -53,5 +72,31 @@ module.exports = (fields = null) => {
     next();
   };
 
-  return { valueValidator: valueValidator, internValidator: internValidator };
+  /*
+   *  pickData(req, res, next) :  run Validation only on fields wanted by the route. other fields are ignored.
+   *                              and they will presiste in the request body.
+   */
+
+  var pickData = (req, res, next) => {
+    var data = req.body;
+    var invalidFields = [];
+
+    Object.keys(data).map((key) => {
+      if (fields.includes(key) && !internValidator(key, data[key]))
+        invalidFields.push(key);
+      });
+    
+    if (invalidFields.length) {
+      error = new Error(`Invalide Fields : ${invalidFields}.`);
+      error.status = 400;
+      next(error);
+    }
+    next();
+  };
+
+  return {
+    valueValidator: valueValidator,
+    internValidator: internValidator,
+    pickData: pickData,
+  };
 };

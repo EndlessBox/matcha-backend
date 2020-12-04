@@ -1,7 +1,7 @@
 const express = require('express');
 const errorHandler = require('./services/errorService');
 var morgan = require('morgan');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 
 
 module.exports = () => {
