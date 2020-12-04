@@ -14,6 +14,7 @@ module.exports = {
   refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION || '1day',
 
 
+  imagesMaxCount: process.env.IMAGES_MAX_COUNT || 5,
   imagesUploadLocation: process.env.IMAGES_UPLOAD_LOCATION || '../uploads',
 
   Database: {

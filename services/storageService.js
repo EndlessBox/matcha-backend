@@ -23,7 +23,8 @@ module.exports = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '_' + file.originalname);
+    let newName = Date.now() + '_' + file.originalname
+    cb(null, newName);
   }
 });
 

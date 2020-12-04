@@ -36,7 +36,7 @@ module.exports = class imageModel {
             let [results, _] = await dbConnection.query({
                 sql: `SELECT * FROM \`images\` where ${attribute}=?`
             }, value);
-                if (!results.length) reject({message: "Image not found."});
+                if (!results.length) resolve(0);
                 resolve(results[0]);
             } catch (error) {
                 console.error(error);

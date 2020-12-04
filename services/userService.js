@@ -9,9 +9,6 @@ var ImageModel = require("../models/image");
 var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 const config = require("../config/config");
-const dbConnection = require("../models/dbConnection");
-const { count } = require("console");
-const { exit } = require("process");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -337,13 +334,20 @@ module.exports = class userService {
 
     let imageModel = new ImageModel();
     let imageCount = await imageModel.getImagesCountByAttribute('userId', userId);
-
+    let profilImage = await imageModel.getImagesCountByAttribute('isProfilePicture', 1);
+    console.log(profilImage);
 
     images.map(async image => {
-      if (imageCount < 5)
+      if (imageCount < config.imagesMaxCount)
       {
         imageCount += 1;
-        await imageModel.createImage({userId:userId, image: image.filename})
+        if (profilImage !== 0)
+          await imageModel.createImage({userId:userId, image: image.filename})
+        else
+        {
+          profilImage += 1;
+          await imageModel.createImage({userId: userId, image: image.filename, isProfilePicture: 1})
+        }
       }
     })
   }
@@ -353,7 +357,7 @@ module.exports = class userService {
       try {
 
         let userModel = new UserModel();
-        
+
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
 
