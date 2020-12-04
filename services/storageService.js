@@ -1,7 +1,6 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { createVerify } = require("crypto");
 const uploadPath = require("../config/config").imagesUploadLocation;
 
 module.exports = multer.diskStorage({

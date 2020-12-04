@@ -13,6 +13,7 @@ var forgotPassword = require('./managePassword/forgotPassword');
 var resetPassword = require('./managePassword/resetPassword');
 var logout = require('./signIn_Out/signout');
 var updateProfile = require('./userProfil/updateProfile');
+var createLike = require('./likes/createLike');
 
 
 
@@ -23,7 +24,9 @@ router.use('/generateAccessToken', generateAccessToken)
 router.use('/forgotPassword', forgotPassword);
 router.use('/resetPassword', resetPassword);
 router.use('/logout', authentication, logout);
-router.use('/updateProfile', authentication,  upload.array('images', 5), updateProfile);
+router.use('/updateProfile', authentication,  upload.array('images'), updateProfile);
+
+router.use('/like', authentication, createLike);
 
 /*
  *  Need to remove this route, just for testing ! 

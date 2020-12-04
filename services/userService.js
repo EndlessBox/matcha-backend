@@ -335,7 +335,6 @@ module.exports = class userService {
     let imageModel = new ImageModel();
     let imageCount = await imageModel.getImagesCountByAttribute('userId', userId);
     let profilImage = await imageModel.getImagesCountByAttribute('isProfilePicture', 1);
-    console.log(profilImage);
 
     images.map(async image => {
       if (imageCount < config.imagesMaxCount)
@@ -394,7 +393,6 @@ module.exports = class userService {
           return;
         }
         if (err)
-        console.log(err);
         reject(err);
       }
     });
