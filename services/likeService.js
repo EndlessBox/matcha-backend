@@ -36,4 +36,18 @@ module.exports = class likeService {
         })
     }
 
+    getUserLikedHistory(user) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let likeModel = new LikeModel();
+                let results = await likeModel.getLikedHistoryByUserId(user.id);
+                if (!results.length)
+                    return resolve({message: "No likes found.", status:200});
+                resolve(results);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
 }

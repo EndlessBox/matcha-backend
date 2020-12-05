@@ -8,7 +8,7 @@ module.exports = (fields = null) => {
         if (data.length > 255 || data.length < 6 || !mailRegex.test(data))
           return false;
         break;
-      case "userName" || "liker" || "liked":
+      case "userName" || "liker" || "liked" || "consulter" || "consulted":
         var userNameRegex = new RegExp(regex.userName);
         if (data.length > 100 || data.length < 5 || !userNameRegex.test(data))
           return false;

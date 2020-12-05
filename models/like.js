@@ -22,6 +22,21 @@ module.exports = class likeModel {
                 reject(error);
             }
         })
+    }
 
+
+
+    getLikedHistoryByUserId(userId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                let [results, _] = await dbConnection.query({
+                    sql: "select u.userName, u.firstName, u.lastName, l.dateOfLike from user u inner JOIN likes l on u.id=l.liker where l.liked=?"
+                }, userId);
+                resolve(results);
+            } catch (error) {
+                reject(error);
+            }
+        })
     }
 }
