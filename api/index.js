@@ -18,7 +18,7 @@ var getLikes = require('./likes/getLikes');
 var createConsultation = require('./consultations/createConsultation');
 var getConsultations = require('./consultations/getConsultation');
 var createLocation = require('./location/createLocation');
-
+var getLocation = require('./location/getLocation');
 
 
 router.use('/signup', signupRoutes);
@@ -39,6 +39,7 @@ router.use('/consultation', authentication, getConsultations);
 
 
 router.use('/location', authentication, createLocation);
+router.use('/location',authentication, getLocation);
 
 /*
  *  Need to remove this route, just for testing ! 

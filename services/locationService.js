@@ -19,4 +19,17 @@ module.exports = class locationService {
             }
         })
     }
+
+    getUserLocation(userId) {
+        return new Promise(async(resolve, reject) => {
+            try {
+                let locationModel = new LocationModel();
+                let location = await locationModel.getUserLocation(userId);
+                delete location['id'];
+                resolve(location);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
 }

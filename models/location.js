@@ -19,4 +19,19 @@ module.exports = class locationModel {
             }
         })
     }
+
+    getUserLocation(userId){
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [results, _] = await dbConnection.query({
+                    sql: "SELECT l.* FROM `location` l  INNER JOIN user u ON u.locationId=l.id WHERE u.id=?",
+                    timeout: 4000
+                }, userId)
+
+                resolve (results[0])
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
 }
