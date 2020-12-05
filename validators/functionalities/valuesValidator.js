@@ -9,7 +9,7 @@ module.exports = (fields = null) => {
         if (data.length > 255 || data.length < 6 || !mailRegex.test(data))
           return false;
         break;
-      case ("userName" || "liker" || "liked" || "consulter" || "consulted"):
+      case "userName": case "liker": case "liked": case "consulter": case "consulted":
         var userNameRegex = new RegExp(regex.userName);
         if (data.length > 100 || data.length < 5 || !userNameRegex.test(data))
           return false;
@@ -53,8 +53,8 @@ module.exports = (fields = null) => {
         if (invalideTags.length)
           return false;
         break;
-      case ("latitude" || "longitude" || "altitude"):
-        if (!isFloat(data)) return false;
+      case "latitude": case "longitude": case "altitude":
+        if (isNaN(data)) return false;
         break;
     }
     return true;

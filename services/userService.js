@@ -69,8 +69,10 @@ module.exports = class userService {
         user.password = await bcrypt.hash(user.password, config.hashRounds);
         userId = await userModel.createUser(user);
         if (!validator("email", emailConfig.mailUserName)) {
+          await userModel.deleteUserAttribute("id", userId);
           console.error("Error : Configuration Email is Invalide");
           reject({ message: "Internal Server Error.", status: 500 });
+          return;
         }
         await emailServ.sendMail(
           emailTransporter,

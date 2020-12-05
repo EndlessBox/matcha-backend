@@ -29,5 +29,5 @@ module.exports = {
         tags: /^#[a-zA-Z0-9_]{2,15}$/
 
     },
-    isFloat: (number) => ((Number(number) === 0) || (Number(number) === number && number % 1 !== 0))
+    isFloat: (number) => Number(number) === 0 || (Number(number) === number && number % 1 !== 0)
 }
