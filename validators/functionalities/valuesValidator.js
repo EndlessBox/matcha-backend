@@ -1,3 +1,5 @@
+const { imagesMaxCount } = require("../../config/config");
+
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
     var regex = require("../index").regex;
@@ -55,6 +57,11 @@ module.exports = (fields = null) => {
         break;
       case "latitude": case "longitude": case "altitude":
         if (isNaN(data)) return false;
+        break;
+
+      case "imageName":
+        var imageNameRegex = new RegExp(regex.imageName);
+        if (!imageNameRegex.test(data)) return false;
         break;
     }
     return true;
