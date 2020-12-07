@@ -1,5 +1,8 @@
+const { imagesMaxCount } = require("../../config/config");
+
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
+
     var regex = require("../index").regex;
     var isFloat = require("../index").isFloat;
 
@@ -46,6 +49,9 @@ module.exports = (fields = null) => {
       case "tags":
         var tagRegex = new RegExp(regex.tags);
         var invalideTags = [];
+
+        if (typeof data === 'string')
+          data = [data];
         data.map((tag) => {
           if (!tagRegex.test(tag)) 
             invalideTags.push(tag);
@@ -56,8 +62,14 @@ module.exports = (fields = null) => {
       case "latitude": case "longitude": case "altitude":
         if (isNaN(data)) return false;
         break;
+
+      case "imageName":
+        var imageNameRegex = new RegExp(regex.imageName);
+        if (!imageNameRegex.test(data)) return false;
+        break;
     }
     return true;
+ 
   };
 
   var valueValidator = (req, res, next) => {
@@ -65,6 +77,7 @@ module.exports = (fields = null) => {
     var invalidFields;
     var error;
 
+    try{
     invalidFields = fields.filter(
       (field) => 
         !internValidator(field, data[field])
@@ -75,6 +88,10 @@ module.exports = (fields = null) => {
       next(error);
     }
     next();
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
   };
 
   /*
@@ -85,7 +102,8 @@ module.exports = (fields = null) => {
   var pickData = (req, res, next) => {
     var data = req.body;
     var invalidFields = [];
-
+    
+    try {
     Object.keys(data).map((key) => {
       if (fields.includes(key) && !internValidator(key, data[key]))
         invalidFields.push(key);
@@ -97,6 +115,10 @@ module.exports = (fields = null) => {
       next(error);
     }
     next();
+  }
+  catch(err){ 
+    next(err);
+  }
   };
 
   return {

@@ -19,6 +19,8 @@ var createConsultation = require('./consultations/createConsultation');
 var getConsultations = require('./consultations/getConsultation');
 var createLocation = require('./location/createLocation');
 var getLocation = require('./location/getLocation');
+var deleteImage = require('./image/deleteImage');
+var getImages = require('./image/getImages');
 
 
 router.use('/signup', signupRoutes);
@@ -40,6 +42,10 @@ router.use('/consultation', authentication, getConsultations);
 
 router.use('/location', authentication, createLocation);
 router.use('/location',authentication, getLocation);
+
+
+router.use('/image', authentication, deleteImage);
+router.use('/image', authentication, getImages);
 
 /*
  *  Need to remove this route, just for testing ! 

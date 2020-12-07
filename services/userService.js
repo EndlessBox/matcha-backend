@@ -5,9 +5,9 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var TagModel = require("../models/tag");
 var GenderModel = require("../models/gender");
-var ImageModel = require("../models/image");
 var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
+var imageService = require("./imageService");
 const config = require("../config/config");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
@@ -286,6 +286,8 @@ module.exports = class userService {
   async manageTags(userData, user) {
     let tagModel = new TagModel();
 
+    if (typeof userData.tags === 'string')
+      userData.tags = [userData.tags];
     userData.tags.map(async (tag) => {
       try {
         let { resultId, offset } = await tagModel.createTag([tag]);
@@ -331,33 +333,14 @@ module.exports = class userService {
     delete userData.orientation;
   }
 
-  async manageImages(images, userId){
-
-
-    let imageModel = new ImageModel();
-    let imageCount = await imageModel.getImagesCountByAttribute('userId', userId);
-    let profilImage = await imageModel.getImagesCountByAttribute('isProfilePicture', 1);
-
-    images.map(async image => {
-      if (imageCount < config.imagesMaxCount)
-      {
-        imageCount += 1;
-        if (profilImage !== 0)
-          await imageModel.createImage({userId:userId, image: image.filename})
-        else
-        {
-          profilImage += 1;
-          await imageModel.createImage({userId: userId, image: image.filename, isProfilePicture: 1})
-        }
-      }
-    })
-  }
+  
 
   async updateUser(payload, user, images=null) {
     return new Promise(async (resolve, reject) => {
       try {
 
         let userModel = new UserModel();
+        let imageServ = new imageService();
 
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
@@ -365,7 +348,7 @@ module.exports = class userService {
         if (userData.tags) await this.manageTags(userData, user);
 
 
-        if (images) await this.manageImages(images, user.id);
+        if (images) await imageServ.manageImages(images, user.id);
 
         if (userData.gender) 
           await this.manageGender(userData, user);
