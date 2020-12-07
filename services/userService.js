@@ -286,6 +286,8 @@ module.exports = class userService {
   async manageTags(userData, user) {
     let tagModel = new TagModel();
 
+    if (typeof userData.tags === 'string')
+      userData.tags = [userData.tags];
     userData.tags.map(async (tag) => {
       try {
         let { resultId, offset } = await tagModel.createTag([tag]);

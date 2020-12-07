@@ -36,7 +36,6 @@ module.exports = class imageModel {
                 sql: `SELECT * FROM \`images\` WHERE ${attribute}=?`
             }, value);
                 if (!results.length) resolve(0);
-                console.log(results)
                 resolve(results[0]);
             } catch (error) {
                 console.error(error);
