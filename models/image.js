@@ -64,6 +64,27 @@ module.exports = class imageModel {
         })
     }
 
+
+    getImagesCountByAttributeAndUserId(attribute, value, userId) {
+        return new Promise(async(resolve, reject) => {
+
+            try {
+                let [results, _] = await dbConnection.query({
+                    sql: `SELECT COUNT(i.id) as count FROM \`images\` i INNER JOIN \`user\` u ON 
+                          u.id=i.userId WHERE ${attribute}=? AND u.id=?`
+                },
+                [value, userId]);
+
+                if (!results.length) resolve(0);
+                resolve(results[0].count);
+            } catch(err) { 
+                console.error(err);
+                reject({message: "Internal Server Error."});
+            }
+
+        })
+    }
+
     deleteImageByAttribute(attribute, value) {
         return new Promise(async(resolve, reject) => {
             try {
@@ -80,13 +101,13 @@ module.exports = class imageModel {
         })
     }
 
-    getImageNotProfilePicture() {
+    getImageNotProfilePicture(userId) {
         return new Promise(async (resolve, reject) => {
             try {
                 let [results, _] = await dbConnection.query({
-                    sql: "SELECT * FROM `images` WHERE isProfilePicture=0 ORDER BY id LIMIT 1",
+                    sql: "SELECT i.* FROM `images` i INNER JOIN \`user\` u ON u.id=i.userId WHERE i.isProfilePicture=0 AND u.id=? ORDER BY i.id LIMIT 1",
                     timeout: 40000
-                })
+                }, userId)
 
                 resolve(results[0]);
             } catch (error) {

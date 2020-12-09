@@ -9,7 +9,7 @@ router.delete('/', propertiesValidator(validators.deleteImage), valueValidator(v
         let imageServ = new imageService();
         let result = {
             status: 200,
-            message: await imageServ.deleteImage(req.body)
+            message: await imageServ.deleteImage(req.body, req.user)
         }
         res.status(200).json(result);
     }catch(error) {
