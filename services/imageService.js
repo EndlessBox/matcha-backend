@@ -1,8 +1,8 @@
 var ImageModel = require("../models/image");
-var fs = require('fs').promises;
-var promisify = require('util').promisify;
-var path = require('path');
-var config = require('../config/config');
+var fs = require("fs").promises;
+var promisify = require("util").promisify;
+var path = require("path");
+var config = require("../config/config");
 
 module.exports = class imageService {
   constructor() {}
@@ -13,9 +13,10 @@ module.exports = class imageService {
       "userId",
       userId
     );
-    let profilImage = await imageModel.getImagesCountByAttribute(
+    let profilImage = await imageModel.getImagesCountByAttributeAndUserId(
       "isProfilePicture",
-      1
+      1,
+      userId
     );
 
     images.map(async (image) => {
@@ -38,24 +39,31 @@ module.exports = class imageService {
     });
   }
 
-  deleteImage(payload) {
+  deleteImage(payload, user) {
     return new Promise(async (resolve, reject) => {
       try {
         let imageModel = new ImageModel();
-        let image = await imageModel.getImageByAttribute('image', payload.imageName);
-        if (image)
-        {
-          if (image.isProfilePicture)
-          {
-            let alternProfilPic = await imageModel.getImageNotProfilePicture();
+        let image = await imageModel.getImageByAttribute(
+          "image",
+          payload.imageName
+        );
+        if (image) {
+          if (image.isProfilePicture) {
+            let alternProfilPic = await imageModel.getImageNotProfilePicture(
+              user.id
+            );
             if (alternProfilPic)
-                await imageModel.updateImageByAttribute('isProfilePicture', 1, alternProfilPic.id);
+              await imageModel.updateImageByAttribute(
+                "isProfilePicture",
+                1,
+                alternProfilPic.id
+              );
           }
-          await fs.unlink(path.join(__dirname, config.imagesUploadLocation, payload.imageName));
-          await imageModel.deleteImageByAttribute('image', payload.imageName);
-        }
-        else
-          reject({message: "Image not found.", status: 400})
+          await fs.unlink(
+            path.join(__dirname, config.imagesUploadLocation, payload.imageName)
+          );
+          await imageModel.deleteImageByAttribute("image", payload.imageName);
+        } else reject({ message: "Image not found.", status: 400 });
         resolve("image deleted succefully");
       } catch (error) {
         reject(error);
@@ -63,31 +71,29 @@ module.exports = class imageService {
     });
   }
 
-
   getUserImages(userId) {
     return new Promise(async (resolve, reject) => {
       try {
         let imageModel = new ImageModel();
         let images = await imageModel.getImagesByUserId(userId);
-        var dumResponse = {
-          imageName: '',
-          imageBase64: null,
-          isProfilePicture: false
-        }
+
         var response = [];
 
-        response = images.map(async image => {
-          dumResponse.imageName = image.image
-          dumResponse.isProfilePicture = image.isProfilePicture;
-          dumResponse.imageBase64 = await fs.readFile(path.join(__dirname, config.imagesUploadLocation, image.image), {encoding: 'base64'});
-          return dumResponse;
-        })
-    
-        resolve(await Promise.all(response));
+        response = images.map(async (image) => {
+          return {
+            imageName: image.image,
+            isProfilePicture: image.isProfilePicture,
+            imageBase64: await fs.readFile(
+              path.join(__dirname, config.imagesUploadLocation, image.image),
+              { encoding: "base64" }
+            ),
+          };
+        });
 
+        resolve(await Promise.all(response));
       } catch (error) {
         resolve(error);
       }
-    })
+    });
   }
 };
