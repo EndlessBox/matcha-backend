@@ -2,6 +2,8 @@ const express = require('express');
 const errorHandler = require('./services/errorService');
 var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
+var config = require('./config/config');
+var cors = require('cors');
 
 
 module.exports = () => {
@@ -25,7 +27,9 @@ module.exports = () => {
 
             
             server.use(cookieParser());
-            server.use(express.json())
+            server.use(express.json());
+            if (config.nodeEnv !== 'Production')
+                router.use(cors());
             server.use('/api', router);
             server.use(errorHandler);
         }

@@ -21,10 +21,9 @@ var createLocation = require('./location/createLocation');
 var getLocation = require('./location/getLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
-var config = require('../config/config');
 
-if (config.nodeEnv !== 'Production')
-    router.use(require('cors')());
+
+
 router.use('/signup', signupRoutes);
 router.use('/mailActivation', emailActivationRoutes);
 router.use('/signIn', signInRoutes);
