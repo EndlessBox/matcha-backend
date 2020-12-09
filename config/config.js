@@ -17,6 +17,8 @@ module.exports = {
   imagesMaxCount: process.env.IMAGES_MAX_COUNT || 5,
   imagesUploadLocation: process.env.IMAGES_UPLOAD_LOCATION || '../uploads',
 
+  defaultOrientation: process.env.DEFAULT_ORIENTATION || 'bisexual',
+
   Database: {
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,

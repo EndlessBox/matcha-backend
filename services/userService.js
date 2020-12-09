@@ -9,6 +9,7 @@ var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
 const config = require("../config/config");
+const { isError } = require("util");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -322,7 +323,7 @@ module.exports = class userService {
   async manageOrientation(userData, user) {
     let orientationModel = new OrientationModel();
     let userModel = new UserModel();
-    let orientation = userData.orientation;
+    let orientation = userData.orientation || config.defaultOrientation;
 
     let result = await orientationModel.getOrientationByAttribute(
       "orientation",
@@ -353,7 +354,8 @@ module.exports = class userService {
         if (userData.gender) 
           await this.manageGender(userData, user);
 
-        if (userData.orientation)
+          
+        if (userData.orientation || !user.orientationId)
           await this.manageOrientation(userData, user);
           
 
