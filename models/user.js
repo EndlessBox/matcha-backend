@@ -1,3 +1,5 @@
+const { reset } = require("nodemon");
+
 var dbConnection = require("./dbConnection")().getDb();
 
 module.exports = class userModel {
@@ -90,4 +92,50 @@ module.exports = class userModel {
       }
     });
   }
+
+
+  generateGenderOrientationSQL (gender, orientations){
+    let result = `(g.gender='${gender}' AND (`;
+    let sqlOrientations = "";
+
+    orientations.map(orientation => {
+      if (sqlOrientations === "")
+        sqlOrientations = `s.orientation='${orientation}'`;
+      else
+        sqlOrientations = `${sqlOrientations} OR s.orientation='${orientation}'`;
+    })
+
+    result = result + sqlOrientations + '))'
+
+    return result;
+    
+  }
+
+  generateMultipleGenderOrientationSQl (genderOrientations, separator) {
+    let result = ""
+
+    genderOrientations.map(genderOrientations => {
+      if (result === "")
+        result = this.generateGenderOrientationSQL(genderOrientations.gender, genderOrientations.orientations);
+      else 
+        result = `${result} ${separator} ${this.generateGenderOrientationSQL(genderOrientations.gender, genderOrientations.orientations)}`;
+    })
+    return (result);
+  }
+
+  getUserByGenderAndOrientation(genderOrientations){
+    return new Promise (async (resolve, reject) => {
+      try{
+
+        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id WHERE ${this.generateMultipleGenderOrientationSQl(genderOrientations, 'OR')}`
+        let [results, _] = await dbConnection.query({
+          sql : sqlQuery
+        })
+        resolve(results);
+      }catch(err) {
+        reject(err);
+      }
+    })
+  }
+
 };

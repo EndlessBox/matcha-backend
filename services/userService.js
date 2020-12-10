@@ -8,8 +8,8 @@ var GenderModel = require("../models/gender");
 var OrientationModel = require("../models/orientation");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
+var sexualOrientationService = require('./sexualOrientationService');
 const config = require("../config/config");
-const { isError } = require("util");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
@@ -320,20 +320,6 @@ module.exports = class userService {
     delete userData.gender;
   }
 
-  async manageOrientation(userData, user) {
-    let orientationModel = new OrientationModel();
-    let userModel = new UserModel();
-    let orientation = userData.orientation || config.defaultOrientation;
-
-    let result = await orientationModel.getOrientationByAttribute(
-      "orientation",
-      orientation
-    );
-    if (!result) throw "Invalide orientation.";
-    await userModel.updateUserAttribute("orientationId", result.id, user.id);
-    delete userData.orientation;
-  }
-
   
 
   async updateUser(payload, user, images=null) {
@@ -342,9 +328,12 @@ module.exports = class userService {
 
         let userModel = new UserModel();
         let imageServ = new imageService();
+        let sexualOrientationServ = new sexualOrientationService();
 
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
+
+        //await userModel.getUserByGenderAndOrientation(sexualOrientationServ.genderFromOrientation("heterosexual","Female"))
 
         if (userData.tags) await this.manageTags(userData, user);
 
@@ -354,9 +343,9 @@ module.exports = class userService {
         if (userData.gender) 
           await this.manageGender(userData, user);
 
-          
+
         if (userData.orientation || !user.orientationId)
-          await this.manageOrientation(userData, user);
+          await sexualOrientationServ.manageOrientation(userData, user);
           
 
         if (userData.password && userData.password !== userData.retryPassword)

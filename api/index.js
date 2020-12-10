@@ -21,6 +21,7 @@ var createLocation = require('./location/createLocation');
 var getLocation = require('./location/getLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
+var getSuggestions = require('./suggestions/suggestions');
 
 
 
@@ -47,6 +48,9 @@ router.use('/location',authentication, getLocation);
 
 router.use('/image', authentication, deleteImage);
 router.use('/image', authentication, getImages);
+
+
+router.use('/suggestions', authentication, getSuggestions);
 
 /*
  *  Need to remove this route, just for testing ! 
