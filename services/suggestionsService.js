@@ -3,6 +3,7 @@ var orientationService = require("./sexualOrientationService");
 var GenderModel = require("../models/gender");
 var OrientationModel = require("../models/orientation");
 const locationService = require("./locationService");
+const config = require('../config/config');
 
 module.exports = class suggestionsService {
   constructor() {}
@@ -36,15 +37,24 @@ module.exports = class suggestionsService {
 
       let connectedUserLocation = await locationServ.getUserLocation(user.id);
 
-
-      result = result.map(async suggestion => { 
+      // I have a problem here filtring not working ! 
+      result = await result.filter(async suggestion => { 
         let userLocation = await locationServ.getUserLocation(suggestion.id);
-  
+
+        return locationServ.calculateDistance(connectedUserLocation, userLocation) <= config.defaultUserAreaKm;
+            
+      })
+
+      console.log(result);
+
+      result = Promise.all(result.map(async suggestion => {
+        let userLocation = await locationServ.getUserLocation(suggestion.id);
+
         suggestion['distance'] = locationServ.calculateDistance(connectedUserLocation, userLocation);
         delete suggestion.id;
         return suggestion;
-      })
-      resolve(Promise.all(result));
+      }))
+      resolve(result);
       } catch (err) {
         reject(err);
       }

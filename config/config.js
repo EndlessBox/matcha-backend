@@ -19,6 +19,8 @@ module.exports = {
 
   defaultOrientation: process.env.DEFAULT_ORIENTATION || 'bisexual',
 
+  defaultUserAreaKm: process.env.DEFAULT_USER_AREA_KM || 1,
+
   Database: {
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,
