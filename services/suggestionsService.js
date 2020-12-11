@@ -31,23 +31,21 @@ module.exports = class suggestionsService {
         );
 
         let result = await userModel.getUserByGenderAndOrientation(
-          userPreferableOrientation
+          userPreferableOrientation, user.id
         );
 
       let connectedUserLocation = await locationServ.getUserLocation(user.id);
 
 
-      // distance doesnt populate ! fix it ! 
-      result = result.map(async suggestion => {
+      result = result.map(async suggestion => { 
         let userLocation = await locationServ.getUserLocation(suggestion.id);
-        suggestion['distance'] = Math.abs(locationServ.calculateDistance(connectedUserLocation, userLocation));
+  
+        suggestion['distance'] = locationServ.calculateDistance(connectedUserLocation, userLocation);
         delete suggestion.id;
         return suggestion;
       })
-      
-        resolve(Promise.all(result));
+      resolve(Promise.all(result));
       } catch (err) {
-        console.error(err);
         reject(err);
       }
     });

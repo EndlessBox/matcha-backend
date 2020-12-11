@@ -1,5 +1,3 @@
-const { reset } = require("nodemon");
-
 var dbConnection = require("./dbConnection")().getDb();
 
 module.exports = class userModel {
@@ -123,11 +121,10 @@ module.exports = class userModel {
     return (result);
   }
 
-  getUserByGenderAndOrientation(genderOrientations){
+  getUserByGenderAndOrientation(genderOrientations, userId){
     return new Promise (async (resolve, reject) => {
       try{
-
-        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id WHERE ${this.generateMultipleGenderOrientationSQl(genderOrientations, 'OR')}`
+        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id WHERE u.id!=${userId} AND ${this.generateMultipleGenderOrientationSQl(genderOrientations, 'OR')}`
         let [results, _] = await dbConnection.query({
           sql : sqlQuery
         })

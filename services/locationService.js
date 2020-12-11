@@ -35,22 +35,23 @@ module.exports = class locationService {
     }
 
 
-    degreesToRadians(degrees){
+    degreesToRadians(degrees) {
         return degrees * Math.PI / 180;
     }
 
-    calculateDistance (location1, location2){
-        var earthRadiuskm = 6371 ;
+    calculateDistance (location1, location2) {
+        var earthRadiuskm = 6371;
 
-        var dLatitude = this.degreesToRadians(location2.latitude - location1.latitude);
-        var dLongitde =  this.degreesToRadians(location2.longitude - location1.logitude);
+        let dLatitude = this.degreesToRadians(location2.latitude - location1.latitude);
+        let dLongitude =  this.degreesToRadians(location2.longitude - location1.longitude);
+        
+        let l1Latitude = this.degreesToRadians(location1.latitude);
+        let l2Latitude = this.degreesToRadians(location2.latitude);
 
-        location1.latitude = this.degreesToRadians(location1.latitude);
-        location2.latitude = this.degreesToRadians(location2.latitude);
+        let a = Math.pow(Math.sin(dLatitude/2),2) + Math.pow(Math.sin(dLongitude/2),2) * Math.cos(l1Latitude) * Math.cos(l2Latitude)
+        
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-        var a = Math.pow(Math.sin(dLatitude/2)) + Math.pow(Math.sin(dLongitde/2)) * Math.cos(location1.latitude) * Math.cos(location2.latitude)
-
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return earthRadiuskm * c;
     }
 }
