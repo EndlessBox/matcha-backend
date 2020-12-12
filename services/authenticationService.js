@@ -22,6 +22,9 @@ module.exports = () => {
         refreshToken,
         resetPasswordToken,
         resetPasswordExpirationDate,
+        locationId,
+        orientationId,
+        genderId,
         ...user
       } = await userModel.getUserByAttribute("userName", payload.userName);
       req.user = user;

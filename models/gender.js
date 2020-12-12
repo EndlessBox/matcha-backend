@@ -19,4 +19,19 @@ module.exports = class gender {
             }
         })
     }
+
+        getUserGender(userId) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let [results, _] = await dbConnection.query({
+                        sql: `SELECT g.* from \`gender\` g INNER JOIN \`user\` u ON u.genderId=g.id WHERE u.id=?`,
+                        timeout: 40000
+                    }, userId)
+
+                    resolve(results[0]);
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        }
 }

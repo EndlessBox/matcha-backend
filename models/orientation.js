@@ -19,4 +19,18 @@ module.exports = class gender {
             }
         })
     }
+
+    getOrientationByUserId(userId){
+        return new Promise(async(resolve, reject) => {
+            try{
+                let [results, _] = await dbConnection.query({
+                    sql: `SELECT o.* FROM \`sexualOrientation\` o INNER JOIN \`user\` u ON o.id=u.orientationId WHERE u.id=?`,
+                    timeout: 40000
+                }, userId)
+                resolve(results[0]);
+            } catch(err) {
+                reject(err);
+            }
+        })
+    }
 }

@@ -12,7 +12,7 @@ var generateAccessToken = require('./generateAccessToken/genereteAccessToken');
 var forgotPassword = require('./managePassword/forgotPassword');
 var resetPassword = require('./managePassword/resetPassword');
 var logout = require('./signIn_Out/signout');
-var updateProfile = require('./userProfil/updateProfile');
+var updateProfile = require('./user/updateProfile');
 var createLike = require('./likes/createLike');
 var getLikes = require('./likes/getLikes');
 var createConsultation = require('./consultations/createConsultation');
@@ -22,6 +22,7 @@ var getLocation = require('./location/getLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
+var getUserInfos = require('./user/getUserInfos');
 
 
 
@@ -32,7 +33,10 @@ router.use('/generateAccessToken', generateAccessToken)
 router.use('/forgotPassword', forgotPassword);
 router.use('/resetPassword', resetPassword);
 router.use('/logout', authentication, logout);
+
+
 router.use('/updateProfile', authentication,  upload.array('images'), updateProfile);
+router.use('/userInfos', authentication, getUserInfos)
 
 router.use('/like', authentication, createLike);
 router.use('/like', authentication, getLikes);

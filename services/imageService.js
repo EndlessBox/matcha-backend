@@ -71,6 +71,10 @@ module.exports = class imageService {
     });
   }
 
+  async getImageBase64(imageName) {
+    return (await fs.readFile(path.join(__dirname, config.imagesUploadLocation, imageName),{encoding:"base64"}))
+  }
+
   getUserImages(userId) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -83,10 +87,7 @@ module.exports = class imageService {
           return {
             imageName: image.image,
             isProfilePicture: image.isProfilePicture,
-            imageBase64: await fs.readFile(
-              path.join(__dirname, config.imagesUploadLocation, image.image),
-              { encoding: "base64" }
-            ),
+            imageBase64: await this.getImageBase64(image.image)
           };
         });
 
@@ -95,5 +96,24 @@ module.exports = class imageService {
         resolve(error);
       }
     });
+  }
+
+  getUserProfilePicture (userId){
+    return new Promise(async (resolve, reject) => {
+      try{
+
+        let imageModele = new ImageModel();
+        let profileImage = await imageModele.getUserPictureByAttribute('isProfilePicture', 1, userId);
+        if (profileImage)
+          resolve({
+            imageName: profileImage.image,
+            imageBase64: await this.getImageBase64(profileImage.image)
+         })
+         else
+          resolve(profileImage)
+      }catch(err) {
+        reject(err);
+      }
+    })
   }
 };

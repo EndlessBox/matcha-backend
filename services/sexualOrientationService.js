@@ -48,4 +48,20 @@ module.exports = class sexualOrientationService {
         }   
       }
 
+
+      getUserSexualOrientation(userId) {
+          return new Promise(async (resolve, reject) => {
+              try {
+                
+                let orientationModel = new OrientationModel();
+                
+                let orientation = await orientationModel.getOrientationByUserId(userId)
+                resolve(orientation.orientation);
+
+              } catch (error) {
+                reject(error);
+              }
+          })
+      }
+
 }

@@ -143,4 +143,20 @@ module.exports = class imageModel {
             resolve(results);
         })
     }
+
+
+    getUserPictureByAttribute(attribute, value, userId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                let [results, _] = await dbConnection.query({
+                    sql: `SELECT i.* FROM \`user\` u INNER JOIN \`images\` i ON i.userId=u.id WHERE i.${attribute}=? AND u.id=?`
+                }, [value, userId])
+
+                resolve(results[0]);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
 }
