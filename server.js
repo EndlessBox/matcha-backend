@@ -29,7 +29,7 @@ module.exports = () => {
             server.use(cookieParser());
             server.use(express.json());
             if (config.nodeEnv !== 'Production')
-                router.use(cors());
+                server.use(cors());
             server.use('/api', router);
             server.use(errorHandler);
         }
