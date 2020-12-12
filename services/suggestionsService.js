@@ -30,28 +30,12 @@ module.exports = class suggestionsService {
           userOrientation.orientation,
           userGender.gender
         );
-
-        let result = await userModel.getUserByGenderAndOrientation(
-          userPreferableOrientation, user.id
+        let connectedUserLocation = await locationServ.getUserLocation(user.id);
+        
+        let result = await userModel.getUserByGenderAndOrientationAndDistance(
+          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm,
+          ['distance'],'ASC'
         );
-
-      let connectedUserLocation = await locationServ.getUserLocation(user.id);
-
-
-      // I have a problem here filtring not working ! 
-      result = await Promise.all(result.map(async suggestion => {
-        let userLocation = await locationServ.getUserLocation(suggestion.id);
-        let distance = locationServ.calculateDistance(connectedUserLocation, userLocation);
-
-        if(distance <= config.defaultUserAreaKm) {
-          suggestion['distance'] = distance;
-          delete suggestion.id;
-          return suggestion          
-        }
-        else return null;
-      }))
-
-      result = result.filter(suggestion => suggestion != null)
 
       resolve(result);
       

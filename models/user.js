@@ -63,11 +63,14 @@ module.exports = class userModel {
   async updateUser(newUser, userId) {
     return new Promise(async (resolve, reject) => {
       try {
-        const [result, _] = await dbConnection.query({
-          sql: "UPDATE `user` SET ? WHERE id=?",
-          timeout: 40000
-        }, [newUser, userId])
-        resolve(true)
+        const [result, _] = await dbConnection.query(
+          {
+            sql: "UPDATE `user` SET ? WHERE id=?",
+            timeout: 40000,
+          },
+          [newUser, userId]
+        );
+        resolve(true);
       } catch (err) {
         reject(err);
       }
@@ -91,48 +94,77 @@ module.exports = class userModel {
     });
   }
 
-
-  generateGenderOrientationSQL (gender, orientations){
+  generateGenderOrientationSQL(gender, orientations) {
     let result = `(g.gender='${gender}' AND (`;
     let sqlOrientations = "";
 
-    orientations.map(orientation => {
+    orientations.map((orientation) => {
       if (sqlOrientations === "")
         sqlOrientations = `s.orientation='${orientation}'`;
       else
         sqlOrientations = `${sqlOrientations} OR s.orientation='${orientation}'`;
-    })
+    });
 
-    result = result + sqlOrientations + '))'
+    result = result + sqlOrientations + "))";
 
     return result;
-    
   }
 
-  generateMultipleGenderOrientationSQl (genderOrientations, separator) {
-    let result = ""
+  generateMultipleGenderOrientationSQl(genderOrientations, separator) {
+    let result = "";
 
-    genderOrientations.map(genderOrientations => {
+    genderOrientations.map((genderOrientations) => {
       if (result === "")
-        result = this.generateGenderOrientationSQL(genderOrientations.gender, genderOrientations.orientations);
-      else 
-        result = `${result} ${separator} ${this.generateGenderOrientationSQL(genderOrientations.gender, genderOrientations.orientations)}`;
-    })
-    return (result);
+        result = this.generateGenderOrientationSQL(
+          genderOrientations.gender,
+          genderOrientations.orientations
+        );
+      else
+        result = `${result} ${separator} ${this.generateGenderOrientationSQL(
+          genderOrientations.gender,
+          genderOrientations.orientations
+        )}`;
+    });
+    return result;
   }
 
-  getUserByGenderAndOrientation(genderOrientations, userId){
-    return new Promise (async (resolve, reject) => {
-      try{
-        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id WHERE u.id!=${userId} AND ${this.generateMultipleGenderOrientationSQl(genderOrientations, 'OR')}`
+  generateOrder(orders) {
+    let result = "";
+
+    orders.map((order) => {
+      if (result === "") result = order;
+      else result = `${result}, ${order}`;
+    });
+    return result;
+  }
+
+  getUserByGenderAndOrientationAndDistance(
+    genderOrientations,
+    userId,
+    userLocation,
+    MaxDistance,
+    orders,
+    orderVariant = "ASC"
+  ) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender, ST_Distance_sphere(point(l.longitude, l.latitude), point(${
+          userLocation.longitude
+        }, ${
+          userLocation.latitude
+        })) / 1000 as distance FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id INNER JOIN \`location\` l ON u.locationId=l.id WHERE u.id!=${userId} AND
+        ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) / 1000 <= ${MaxDistance}
+        AND (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")})
+        ORDER BY ${this.generateOrder(orders)} ${orderVariant}`;
+
         let [results, _] = await dbConnection.query({
-          sql : sqlQuery
-        })
+          sql: sqlQuery,
+        });
         resolve(results);
-      }catch(err) {
+      } catch (err) {
+        console.error(err);
         reject(err);
       }
-    })
+    });
   }
-
 };
