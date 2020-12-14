@@ -5,7 +5,7 @@ var promisify = require("util").promisify;
 var UserModel = require("../models/user");
 var TagModel = require("../models/tag");
 var GenderModel = require("../models/gender");
-var ImageModel = require("../models/image");
+var genderService = require("./genderService");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
 var sexualOrientationService = require('./sexualOrientationService');
@@ -379,8 +379,10 @@ module.exports = class userService {
       try{
         let imageServ = new imageService();
         let orientationServ = new sexualOrientationService();
+        let genderServ = new genderService();
         user['ProfileImage'] = await imageServ.getUserProfilePicture(user.id);
         user['orientation'] = await orientationServ.getUserSexualOrientation(user.id);
+        user['gender'] = await genderServ.getUserGender(user.id);
         delete user.id;
         resolve(user);
       } catch(err) {
