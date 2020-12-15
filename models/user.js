@@ -128,12 +128,12 @@ module.exports = class userModel {
     return result;
   }
 
-  generateOrder(orders) {
+  generateOrder(orders, orderVariant) {
     let result = "";
 
-    orders.map((order) => {
-      if (result === "") result = order;
-      else result = `${result}, ${order}`;
+    orders.map((order, index) => {
+      if (result === "") result = `${order} ${orderVariant[index]}` ; // ORDER BY column1 DESC, column2 ASC
+      else result = `${result}, ${order} ${orderVariant[index]}`;
     });
     return result;
   }
@@ -148,14 +148,24 @@ module.exports = class userModel {
   ) {
     return new Promise(async (resolve, reject) => {
       try {
-        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender, ST_Distance_sphere(point(l.longitude, l.latitude), point(${
-          userLocation.longitude
-        }, ${
-          userLocation.latitude
-        })) / 1000 as distance FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id INNER JOIN \`location\` l ON u.locationId=l.id WHERE u.id!=${userId} AND
-        ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) / 1000 <= ${MaxDistance}
-        AND (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")})
-        ORDER BY ${this.generateOrder(orders)} ${orderVariant}`;
+        let sqlQuery = `SELECT u.id, u.email, u.userName, u.bio, s.orientation, g.gender, Count(t.tag) as 'communTags', ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) / 1000 as distance \
+        FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id \
+                        INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id \
+                        INNER JOIN \`location\` l ON u.locationId=l.id \
+                        INNER JOIN \`user_tag\` ut ON  u.id=ut.userId \
+                        INNER JOIN \`tag\` t ON t.id=ut.tagId \
+        WHERE u.id!=${userId} \
+        AND \
+          ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) <= ${MaxDistance} \
+        AND \
+          (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")}) \
+        AND
+          t.tag IN (SELECT t1.tag FROM tag t1
+                    INNER JOIN user_tag ut1 ON t1.id=ut1.tagId
+                    INNER JOIN user u1 ON u1.id=ut1.userId
+                    WHERE u1.id = ${userId})
+        GROUP BY u.userName
+        ORDER BY ${this.generateOrder(orders, orderVariant)}`;
 
         let [results, _] = await dbConnection.query({
           sql: sqlQuery,

@@ -33,10 +33,9 @@ module.exports = class suggestionsService {
         let connectedUserLocation = await locationServ.getUserLocation(user.id);
         
         let result = await userModel.getUserByGenderAndOrientationAndDistance(
-          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm,
-          ['distance'],'ASC'
+          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
+          ['distance', 'communTags'],['ASC', 'DESC']
         );
-
       resolve(result);
       
       } catch (err) {
