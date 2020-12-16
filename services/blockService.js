@@ -50,7 +50,7 @@ module.exports = class blockService {
                 let rankServ = new rankService();
 
                 if (user.userName !== query.blocker)
-                    return reject({message: "Block from outer source.", status:403});
+                    return reject({message: "Unblock from outer source.", status:403});
                 let blocked = await userModel.getUserByAttribute("userName", query.blocked);
                 let blocker = user;
 

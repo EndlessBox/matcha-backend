@@ -53,7 +53,7 @@ module.exports = {
   },
   Experience: {
     like: 50,
-    matched: 10,
+    match: 10,
     dislike: -50,
     block: -100,
     calculate: (update, updaterRankValue) => update ? update + (update * updaterRankValue) / 100 : update
