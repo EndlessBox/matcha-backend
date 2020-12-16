@@ -38,4 +38,35 @@ module.exports = class blockService {
             }
         })
     }
+
+
+
+    deleteBlock (query, user) {
+        return new Promise(async(resolve, reject) => {
+            try {
+                
+                let blockModel = new BlockModel();
+                let userModel = new UserModel();
+                let rankServ = new rankService();
+
+                if (user.userName !== query.blocker)
+                    return reject({message: "Block from outer source.", status:403});
+                let blocked = await userModel.getUserByAttribute("userName", query.blocked);
+                let blocker = user;
+
+                let result = await blockModel.deleteBlock(blocker.id, blocked.id);
+                let newUserExperience = blocked.experience;
+                if (result != 0)
+                {
+                    newUserExperience = await rankServ.calculateUserExperience(xpConfig.block * -1, blocked, blocker, "MAX");
+                    await userModel.updateUserAttribute('experience', newUserExperience, blocked.id);
+                }
+
+                resolve({message: "Unblocked succefuly.", status: "200"});
+
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
 }

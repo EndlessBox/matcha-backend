@@ -24,6 +24,7 @@ var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
 var createBlock = require('./block/createBlock');
+var deleteBlock = require('./block/deleteBlock');
 
 
 
@@ -57,6 +58,7 @@ router.use('/suggestions', authentication, getSuggestions);
 
 
 router.use('/block', authentication, createBlock);
+router.use('/block', authentication, deleteBlock);
 
 /*
  *  Need to remove this route, just for testing ! 
