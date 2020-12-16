@@ -15,6 +15,7 @@ var logout = require('./signIn_Out/signout');
 var updateProfile = require('./userProfil/updateProfile');
 var createLike = require('./likes/createLike');
 var getLikes = require('./likes/getLikes');
+var deleteLikes = require('./likes/deleteLike');
 var createConsultation = require('./consultations/createConsultation');
 var getConsultations = require('./consultations/getConsultation');
 var createLocation = require('./location/createLocation');
@@ -22,6 +23,7 @@ var getLocation = require('./location/getLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
+var createBlock = require('./block/createBlock');
 
 
 
@@ -36,6 +38,7 @@ router.use('/updateProfile', authentication,  upload.array('images'), updateProf
 
 router.use('/like', authentication, createLike);
 router.use('/like', authentication, getLikes);
+router.use('/like', authentication, deleteLikes);
 
 
 router.use('/consultation', authentication, createConsultation);
@@ -51,6 +54,9 @@ router.use('/image', authentication, getImages);
 
 
 router.use('/suggestions', authentication, getSuggestions);
+
+
+router.use('/block', authentication, createBlock);
 
 /*
  *  Need to remove this route, just for testing ! 

@@ -35,6 +35,7 @@ module.exports = class userModel {
         if (!result.length) reject({ message: "user not found" });
         resolve(result[0]);
       } catch (err) {
+        console.log(err.message);
         reject(err);
       }
     });
