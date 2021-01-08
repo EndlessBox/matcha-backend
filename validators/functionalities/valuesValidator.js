@@ -1,5 +1,3 @@
-const { imagesMaxCount } = require("../../config/config");
-
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
 
@@ -13,7 +11,7 @@ module.exports = (fields = null) => {
           return false;
         break;
       case "userName": case "liker": case "liked": case "consulter": case "consulted":
-      case "blocker": case "blocked":
+      case "blocker": case "blocked":case "matched":case "matcher":
         var userNameRegex = new RegExp(regex.userName);
         if (data.length > 100 || data.length < 5 || !userNameRegex.test(data))
           return false;
