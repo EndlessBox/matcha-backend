@@ -1,6 +1,5 @@
 module.exports = (fields = null) => {
   var internValidator = (field, data) => {
-
     var regex = require("../index").regex;
     var isFloat = require("../index").isFloat;
 
@@ -10,8 +9,15 @@ module.exports = (fields = null) => {
         if (data.length > 255 || data.length < 6 || !mailRegex.test(data))
           return false;
         break;
-      case "userName": case "liker": case "liked": case "consulter": case "consulted":
-      case "blocker": case "blocked":case "matched":case "matcher":
+      case "userName":
+      case "liker":
+      case "liked":
+      case "consulter":
+      case "consulted":
+      case "blocker":
+      case "blocked":
+      case "matched":
+      case "matcher":
         var userNameRegex = new RegExp(regex.userName);
         if (data.length > 100 || data.length < 5 || !userNameRegex.test(data))
           return false;
@@ -49,16 +55,15 @@ module.exports = (fields = null) => {
         var tagRegex = new RegExp(regex.tags);
         var invalideTags = [];
 
-        if (typeof data === 'string')
-          data = [data];
+        if (typeof data === "string") data = [data];
         data.map((tag) => {
-          if (!tagRegex.test(tag)) 
-            invalideTags.push(tag);
+          if (!tagRegex.test(tag)) invalideTags.push(tag);
         });
-        if (invalideTags.length)
-          return false;
+        if (invalideTags.length) return false;
         break;
-      case "latitude": case "longitude": case "altitude":
+      case "latitude":
+      case "longitude":
+      case "altitude":
         if (isNaN(data)) return false;
         break;
 
@@ -66,9 +71,33 @@ module.exports = (fields = null) => {
         var imageNameRegex = new RegExp(regex.imageName);
         if (!imageNameRegex.test(data)) return false;
         break;
+
+      case "tri":
+        var keysRegex = new RegExp(regex.triKeys);
+        var valuesRegex = new RegExp(regex.triValues);
+
+        Object.keys(data).map((key) => {
+          if (!keysRegex.test(key) || !valuesRegex.test(data[key])) {
+            delete data[key];
+            return false;
+          }
+        });
+        break;
+
+        case "filter":
+          var keysRegex = new RegExp(regex.filterKeys);
+  
+          Object.keys(data).map((key) => {
+            if (!keysRegex.test(key) || isNaN(data[key][0]) ||  isNaN(data[key][1]) || data[key][0] > data[key][1] ||
+            data[key][0] < 0 || data[key][1] < 0 ) {
+              delete data[key];
+              return false;
+            }
+          });
+          break;
+      
     }
     return true;
- 
   };
 
   var valueValidator = (req, res, next) => {
@@ -76,21 +105,20 @@ module.exports = (fields = null) => {
     var invalidFields;
     var error;
 
-    try{
-    invalidFields = fields.filter(
-      (field) => 
-        !internValidator(field, data[field])
-    );
-    if (invalidFields.length) {
-      error = new Error(`Invalide Fields : ${invalidFields}.`);
-      error.status = 400;
-      next(error);
+    try {
+      invalidFields = fields.filter(
+        (field) => !internValidator(field, data[field])
+      );
+      if (invalidFields.length) {
+        error = new Error(`Invalide Fields : ${invalidFields}.`);
+        error.status = 400;
+        next(error);
+      }
+      next();
+    } catch (err) {
+      console.log(err);
+      next(err);
     }
-    next();
-  } catch(err) {
-    console.log(err);
-    next(err);
-  }
   };
 
   /*
@@ -101,23 +129,22 @@ module.exports = (fields = null) => {
   var pickData = (req, res, next) => {
     var data = req.body;
     var invalidFields = [];
-    
+
     try {
-    Object.keys(data).map((key) => {
-      if (fields.includes(key) && !internValidator(key, data[key]))
-        invalidFields.push(key);
+      Object.keys(data).map((key) => {
+        if (fields.includes(key) && !internValidator(key, data[key]))
+          invalidFields.push(key);
       });
-    
-    if (invalidFields.length) {
-      error = new Error(`Invalide Fields : ${invalidFields}.`);
-      error.status = 400;
-      next(error);
+
+      if (invalidFields.length) {
+        error = new Error(`Invalide Fields : ${invalidFields}.`);
+        error.status = 400;
+        next(error);
+      }
+      next();
+    } catch (err) {
+      next(err);
     }
-    next();
-  }
-  catch(err){ 
-    next(err);
-  }
   };
 
   return {

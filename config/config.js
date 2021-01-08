@@ -57,6 +57,11 @@ module.exports = {
     dislike: -50,
     block: -100,
     calculate: (update, updaterRankValue) => update ? update + (update * updaterRankValue) / 100 : update
+  },
+
+  DefaultSuggestionsTri : {
+    distance: "ASC",
+    communTags: "DESC"
   }
 
 };
