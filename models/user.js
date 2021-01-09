@@ -144,16 +144,27 @@ module.exports = class userModel {
   }
 
 
-  // generateFilter(filters, location) {
-  //   let result = "";
+  generateFilter(filters, location, userId) {
+    let result = "";
 
-  //   Object.keys(filters).map(key => {
-  //     if (result == "" && key != 'distance') result = `${key} >= ${filters[key][0]} AND ${key} <= ${filters[key][1]}`
-  //     else if (result == "" && key == 'distance') result = `${this.distanceSqlFromLongLat(data[])}` // i am here ! 
-  //     else if (key != 'ditance') result = `${result} AND ${key} >= ${filters[key][0]} AND ${key} <= ${filters[key][1]}`
-  //   })
-  //   return result;
-  // }
+    Object.keys(filters).map(key => {
+      switch (key) {
+        case 'communTags':
+          let communtags = `(SELECT Count(t1.tag) FROM tag t1 \
+          INNER JOIN user_tag ut1 ON t1.id=ut1.tagId \
+          INNER JOIN user u1 ON u1.id=ut1.userId \
+          WHERE u1.id = ${userId})`
+
+          if (result == "")
+            result = `${communtags} >= ${filters[key][0]} AND ${communtags} <= ${filters[key][1]}`
+          else 
+          result = `${result} AND Count(t.tag) >= ${filters[key][0]} AND Count(t.tag) <= ${filters[key][1]}`
+          break;
+      }
+    })
+    console.log(result)
+    return result;
+  }
 
   getUserByGenderAndOrientationAndDistance(
     genderOrientations,
@@ -175,7 +186,10 @@ module.exports = class userModel {
         WHERE u.id!=${userId} \
         AND \
           ${this.distanceSqlFromLongLat(userLocation.longitude, userLocation.latitude)} <= ${MaxDistance} \
-       
+
+        AND
+          ${this.generateFilter(filters, userLocation, userId)}
+
         AND \
           (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")}) \
         AND \
