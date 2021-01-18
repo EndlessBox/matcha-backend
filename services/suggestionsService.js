@@ -14,7 +14,6 @@ module.exports = class suggestionsService {
     let keys = [];
     let order = [];
 
-
     Object.keys(payload).map(key => {
       keys.push(key);
       order.push(payload[key]);
@@ -52,12 +51,11 @@ module.exports = class suggestionsService {
         let connectedUserLocation = await locationServ.getUserLocation(user.id);
         
 
-
-        let {keys, order} = payload.tri?.length ? this.manageTri(payload.tri) : this.manageTri(config.DefaultSuggestionsTri);
+        let {keys, order} = payload.tri && Object.keys(payload.tri).length ? this.manageTri(payload.tri) : this.manageTri(config.DefaultSuggestionsTri);
 
         let result = await userModel.getUserByGenderAndOrientationAndDistance(
           userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
-          keys, order, payload.filter
+          keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null
         );
       resolve(result);
       

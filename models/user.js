@@ -1,3 +1,6 @@
+const { decode } = require("jsonwebtoken");
+const config = require("../config/config");
+
 var dbConnection = require("./dbConnection")().getDb();
 
 module.exports = class userModel {
@@ -153,16 +156,39 @@ module.exports = class userModel {
           let communtags = `(SELECT Count(t1.tag) FROM tag t1 \
           INNER JOIN user_tag ut1 ON t1.id=ut1.tagId \
           INNER JOIN user u1 ON u1.id=ut1.userId \
-          WHERE u1.id = ${userId})`
+          WHERE u1.id=u.id AND t1.tag IN (SELECT t2.tag FROM tag t2 INNER JOIN user_tag ut2 ON t2.id=ut2.tagId INNER JOIN user u2 ON u2.id=ut2.userId AND u2.id=${userId}))`
 
           if (result == "")
             result = `${communtags} >= ${filters[key][0]} AND ${communtags} <= ${filters[key][1]}`
           else 
-          result = `${result} AND Count(t.tag) >= ${filters[key][0]} AND Count(t.tag) <= ${filters[key][1]}`
+          result = `${result} AND ${communtags} >= ${filters[key][0]} AND ${communtags} <= ${filters[key][1]}`
           break;
+
+       case 'distance':
+         let distance = this.distanceSqlFromLongLat(location.longitude, location.latitude);
+        if (result == "")
+          result = `${distance} / 1000 >= ${filters[key][0]} AND ${distance}/ 1000  <= ${filters[key][1]}`
+        else 
+          result = `${result} AND ${distance} / 1000 >= ${filters[key][0]} AND ${distance} / 1000 <= ${filters[key][1]}`
+        break;
+
+       case 'experience':
+        if (result == "")
+          result = `${key} >= ${filters[key][0]} AND ${key} <= ${filters[key][1]}`
+        else 
+          result = `${result} AND ${key} >= ${filters[key][0]} AND ${key} <= ${filters[key][1]}`
+      break;
       }
     })
-    console.log(result)
+
+    if (!filters.distance)
+    {
+      let distance = this.distanceSqlFromLongLat(location.longitude, location.latitude);
+        if (result == "")
+          result = `${distance} / 1000 >= 0 AND ${distance} / 1000  <= ${config.defaultUserAreaKm}`
+        else 
+          result = `${result} AND ${distance} / 1000 >= 0 AND ${distance} / 1000 <= ${config.defaultUserAreaKm}`
+    }
     return result;
   }
 
@@ -183,14 +209,16 @@ module.exports = class userModel {
                         INNER JOIN \`location\` l ON u.locationId=l.id \
                         INNER JOIN \`user_tag\` ut ON  u.id=ut.userId \
                         INNER JOIN \`tag\` t ON t.id=ut.tagId \
-        WHERE u.id!=${userId} \
-        AND \
-          ${this.distanceSqlFromLongLat(userLocation.longitude, userLocation.latitude)} <= ${MaxDistance} \
+        WHERE u.id!=${userId} `
 
-        AND
-          ${this.generateFilter(filters, userLocation, userId)}
-
-        AND \
+          if (filters)
+          {
+            sqlQuery = sqlQuery + `AND \
+            ${this.generateFilter(filters, userLocation, userId)}`
+          }
+        
+        sqlQuery = sqlQuery + ` \
+        AND 
           (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")}) \
         AND \
           t.tag IN (SELECT t1.tag FROM tag t1 \
