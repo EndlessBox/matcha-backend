@@ -35,6 +35,7 @@ module.exports = class suggestionsService {
         let orientationModel = new OrientationModel();
         let locationServ = new locationService();
 
+        console.log(user);
         let userGender = await genderModel.getGenderByAttribute(
           "id",
           user.genderId
@@ -55,7 +56,8 @@ module.exports = class suggestionsService {
 
         let result = await userModel.getUserByGenderAndOrientationAndDistance(
           userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
-          keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null
+          keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null,
+          payload.offset, payload.row_count
         );
       resolve(result);
       

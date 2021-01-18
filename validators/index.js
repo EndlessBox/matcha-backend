@@ -34,7 +34,8 @@ module.exports = {
         imageName: /^[0-9]{10,13}_[\w\s]+.[\w]{3,4}/,
         triValues: /\b(DESC|ASC)\b/,
         triKeys: /\b(distance|communTags|experience)\b/,
-        filterKeys: /\b(distance|communTags|experience)\b/
+        filterKeys: /\b(distance|communTags|experience)\b/,
+        offset: /^\d{1,10}$/
     },
     isFloat: (number) => Number(number) === 0 || (Number(number) === number && number % 1 !== 0)
 }

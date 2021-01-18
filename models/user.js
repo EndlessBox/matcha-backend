@@ -199,7 +199,9 @@ module.exports = class userModel {
     MaxDistance,
     orders,
     orderVariant = "ASC",
-    filters
+    filters,
+    offset,
+    row_count
   ) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -226,9 +228,8 @@ module.exports = class userModel {
                     INNER JOIN user u1 ON u1.id=ut1.userId \
                     WHERE u1.id = ${userId}) \
         GROUP BY u.userName \
-        ORDER BY ${this.generateOrder(orders, orderVariant)}`;
-
-        console.log(sqlQuery);
+        ORDER BY ${this.generateOrder(orders, orderVariant)} \
+        LIMIT ${offset},${row_count}`;
 
         let [results, _] = await dbConnection.query({
           sql: sqlQuery,
