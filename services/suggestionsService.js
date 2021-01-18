@@ -8,7 +8,25 @@ const config = require('../config/config');
 module.exports = class suggestionsService {
   constructor() {}
 
-  getUserSuggestions(user) {
+
+
+  manageTri(payload){
+    let keys = [];
+    let order = [];
+
+    Object.keys(payload).map(key => {
+      keys.push(key);
+      order.push(payload[key]);
+    })
+
+    return {
+      keys: keys, 
+      order: order
+    }
+  }
+
+
+  getUserSuggestions(user, payload) {
     return new Promise(async (resolve, reject) => {
       try {
         let userModel = new UserModel();
@@ -32,14 +50,17 @@ module.exports = class suggestionsService {
         );
         let connectedUserLocation = await locationServ.getUserLocation(user.id);
         
-        let result = await userModel.getUserByGenderAndOrientationAndDistance(
-          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm,
-          ['distance'],'ASC'
-        );
 
+        let {keys, order} = payload.tri && Object.keys(payload.tri).length ? this.manageTri(payload.tri) : this.manageTri(config.DefaultSuggestionsTri);
+
+        let result = await userModel.getUserByGenderAndOrientationAndDistance(
+          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
+          keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null
+        );
       resolve(result);
       
       } catch (err) {
+        console.error(err);
         reject(err);
       }
     });

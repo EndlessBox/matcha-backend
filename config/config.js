@@ -50,5 +50,18 @@ module.exports = {
         <p>If you didn't send any reset request, please ignore this email.</p>`,
       link: (resetCode) => `http://localhost:4200/resetPassword/${resetCode}`
     }
+  },
+  Experience: {
+    like: 50,
+    match: 10,
+    dislike: -50,
+    block: -100,
+    calculate: (update, updaterRankValue) => update ? update + (update * updaterRankValue) / 100 : update
+  },
+
+  DefaultSuggestionsTri : {
+    distance: "ASC",
+    communTags: "DESC"
   }
+
 };

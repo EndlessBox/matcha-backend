@@ -15,6 +15,7 @@ var logout = require('./signIn_Out/signout');
 var updateProfile = require('./user/updateProfile');
 var createLike = require('./likes/createLike');
 var getLikes = require('./likes/getLikes');
+var deleteLikes = require('./likes/deleteLike');
 var createConsultation = require('./consultations/createConsultation');
 var getConsultations = require('./consultations/getConsultation');
 var createLocation = require('./location/createLocation');
@@ -23,6 +24,10 @@ var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
 var getUserInfos = require('./user/getUserInfos');
+var createBlock = require('./block/createBlock');
+var deleteBlock = require('./block/deleteBlock');
+var createMatch = require('./match/createMatch');
+var deleteMatch = require('./match/deleteMatch');
 
 
 
@@ -40,6 +45,7 @@ router.use('/userInfos', authentication, getUserInfos)
 
 router.use('/like', authentication, createLike);
 router.use('/like', authentication, getLikes);
+router.use('/like', authentication, deleteLikes);
 
 
 router.use('/consultation', authentication, createConsultation);
@@ -55,6 +61,13 @@ router.use('/image', authentication, getImages);
 
 
 router.use('/suggestions', authentication, getSuggestions);
+
+
+router.use('/block', authentication, createBlock);
+router.use('/block', authentication, deleteBlock);
+
+router.use('/match', authentication, createMatch);
+router.use('/match', authentication, deleteMatch);
 
 /*
  *  Need to remove this route, just for testing ! 

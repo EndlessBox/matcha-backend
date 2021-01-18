@@ -6,6 +6,7 @@ var UserModel = require("../models/user");
 var TagModel = require("../models/tag");
 var GenderModel = require("../models/gender");
 var genderService = require("./genderService");
+var RankModel = require("../models/rank");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
 var sexualOrientationService = require('./sexualOrientationService');
@@ -56,11 +57,17 @@ module.exports = class userService {
   async signup(payload) {
     return await new Promise(async (resolve, reject) => {
       var userModel = new UserModel();
-      var userId = null;
+      var rankModel = new RankModel();
       var emailServ = new emailService();
+      
+      
+      var userId = null;
       var emailTransporter = emailServ.createTransporter();
       var user = this.setUpUserObject(payload, fields.signUpProperties);
+      var starterRank = await rankModel.get(); 
 
+      user['rankId'] = starterRank.id;
+      user['experience'] = starterRank.minXp;
       try {
         let activationObject = await this.setUpActivationKey(
           24 * 60 * 60 * 1000
@@ -332,8 +339,6 @@ module.exports = class userService {
 
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
-
-        //await userModel.getUserByGenderAndOrientation(sexualOrientationServ.genderFromOrientation("heterosexual","Female"))
 
         if (userData.tags) await this.manageTags(userData, user);
 

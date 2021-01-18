@@ -15,7 +15,10 @@ module.exports = {
         createLike: ["liker", "liked"],
         createConsultation: ["consulter", "consulted"],
         createLocation: ["latitude", "longitude", "altitude"],
-        deleteImage: ["imageName"]
+        deleteImage: ["imageName"],
+        createBlock: ["blocker", "blocked"],
+        createMatch: ["matcher", "matched"],
+        suggestions: ["tri", "filter"]
     },
     regex: {
         email: /(?<recipient>^[a-zA-Z0-9][\w\.\-!#$%&'*+-\/=?^`{}|]{0,64})@(?<domainName>(?:\w{1,63}\.){1,8})(?<topLevelDomain>[a-zA-Z]{2,63})$/g,
@@ -28,8 +31,10 @@ module.exports = {
         passwordToken: /[a-zA-Z0-9]{256}/,
         bio: /.*/,
         tags: /^#[a-zA-Z0-9_]{2,15}$/,
-        imageName: /^[0-9]{10,13}_[\w\s]+.[\w]{3,4}/
-
+        imageName: /^[0-9]{10,13}_[\w\s]+.[\w]{3,4}/,
+        triValues: /\b(DESC|ASC)\b/,
+        triKeys: /\b(distance|communTags|experience)\b/,
+        filterKeys: /\b(distance|communTags|experience)\b/
     },
     isFloat: (number) => Number(number) === 0 || (Number(number) === number && number % 1 !== 0)
 }

@@ -1,22 +1,21 @@
 var dbConnection = require('./dbConnection')().getDb();
 
 
-
-
-module.exports = class likeModel {
+module.exports = class blockModel {
 
     constructor(){}
 
-    createLike (like) {
+    createBlock (block) {
         return new Promise(async (resolve, reject) => {
             try {
-                like['id'] = null;
-                like['dateOfLike'] = new Date();
+
+                block['id'] = null;
+                block['dateOfBlock'] = new Date();
                 let [results, _] = await dbConnection.query({
-                    sql: "INSERT INTO `likes` SET ?",
+                    sql: "INSERT INTO `block` SET ?",
                     timeout: 40000
                 },
-                like)
+                block)
                 resolve(results.insertedId);
             } catch (error) {
                 reject(error);
@@ -26,12 +25,12 @@ module.exports = class likeModel {
 
 
 
-    getLikedHistoryByUserId(userId) {
+    getBlockedHistoryByUserId(userId) {
         return new Promise(async (resolve, reject) => {
             try {
                 
                 let [results, _] = await dbConnection.query({
-                    sql: "select u.userName, u.firstName, u.lastName, l.dateOfLike from user u inner JOIN likes l on u.id=l.liker where l.liked=?"
+                    sql: "select u.userName, u.firstName, u.lastName, b.dateOfBlock from user u inner JOIN block b on u.id=b.blocker where b.blocker=?"
                 }, userId);
                 resolve(results);
             } catch (error) {
@@ -40,12 +39,12 @@ module.exports = class likeModel {
         })
     }
 
-    deleteLike(likerId, likedId) {
+    deleteBlock(blockerId, blockedId) {
         return new Promise(async (resolve, reject) => {
             try {
                 let [results, _] = await dbConnection.query({
-                    sql: "DELETE FROM `likes` l WHERE l.liker=? AND l.liked=?"
-                }, [likerId, likedId]);
+                    sql: "DELETE FROM `block` b WHERE b.blocker=? AND b.blocked=?"
+                }, [blockerId, blockedId]);
 
                 resolve(results.affectedRows);
             } catch (error) {

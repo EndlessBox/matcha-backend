@@ -3,20 +3,20 @@ var dbConnection = require('./dbConnection')().getDb();
 
 
 
-module.exports = class likeModel {
+module.exports = class matchModel {
 
     constructor(){}
 
-    createLike (like) {
+    createMatch (match) {
         return new Promise(async (resolve, reject) => {
             try {
-                like['id'] = null;
-                like['dateOfLike'] = new Date();
+                match['id'] = null;
+                match['dateOfMatch'] = new Date();
                 let [results, _] = await dbConnection.query({
-                    sql: "INSERT INTO `likes` SET ?",
+                    sql: "INSERT INTO `match` SET ?",
                     timeout: 40000
                 },
-                like)
+                match)
                 resolve(results.insertedId);
             } catch (error) {
                 reject(error);
@@ -26,12 +26,12 @@ module.exports = class likeModel {
 
 
 
-    getLikedHistoryByUserId(userId) {
+    getMatchedHistoryByUserId(userId) {
         return new Promise(async (resolve, reject) => {
             try {
                 
                 let [results, _] = await dbConnection.query({
-                    sql: "select u.userName, u.firstName, u.lastName, l.dateOfLike from user u inner JOIN likes l on u.id=l.liker where l.liked=?"
+                    sql: "select u.userName, u.firstName, u.lastName, m.dateOfMatch from user u inner JOIN match m on u.id=m.matcher where m.matched=?"
                 }, userId);
                 resolve(results);
             } catch (error) {
@@ -40,12 +40,12 @@ module.exports = class likeModel {
         })
     }
 
-    deleteLike(likerId, likedId) {
+    deleteMatch(matcherId, matchedId) {
         return new Promise(async (resolve, reject) => {
             try {
                 let [results, _] = await dbConnection.query({
-                    sql: "DELETE FROM `likes` l WHERE l.liker=? AND l.liked=?"
-                }, [likerId, likedId]);
+                    sql: "DELETE FROM `match` m WHERE m.matcher=? AND m.matched=?"
+                }, [matcherId, matchedId]);
 
                 resolve(results.affectedRows);
             } catch (error) {
