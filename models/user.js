@@ -1,6 +1,5 @@
 const { decode } = require("jsonwebtoken");
 const config = require("../config/config");
-const { query } = require("express");
 
 var dbConnection = require("./dbConnection")().getDb();
 
@@ -216,7 +215,8 @@ module.exports = class userModel {
     orderVariant = "ASC",
     filters,
     offset,
-    row_count
+    row_count,
+    research = 0
   ) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -235,15 +235,11 @@ module.exports = class userModel {
             ${this.generateFilter(filters, userLocation, userId)}`;
         }
 
-        sqlQuery =
-          sqlQuery +
-          ` \
-        AND 
-          (${this.generateMultipleGenderOrientationSQl(
-            genderOrientations,
-            "OR"
-          )}) \
-        AND \
+        
+        if (research === 0)
+          sqlQuery = sqlQuery + ` AND (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")})`;
+
+        sqlQuery = sqlQuery + ` AND \
           t.tag IN (SELECT t1.tag FROM tag t1 \
                     INNER JOIN user_tag ut1 ON t1.id=ut1.tagId \
                     INNER JOIN user u1 ON u1.id=ut1.userId \
