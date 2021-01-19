@@ -64,7 +64,7 @@ module.exports = class userService {
       var userId = null;
       var emailTransporter = emailServ.createTransporter();
       var user = this.setUpUserObject(payload, fields.signUpProperties);
-      var starterRank = await rankModel.get(); 
+      var starterRank = await rankModel.getLimitValues('MIN'); 
 
       user['rankId'] = starterRank.id;
       user['experience'] = starterRank.minXp;

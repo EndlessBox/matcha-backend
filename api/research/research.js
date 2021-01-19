@@ -1,5 +1,5 @@
 var router = require('express').Router()
-var suggestionsService = require('../../services/suggestionsService');
+var researchService = require('../../services/researchService');
 const validators = require('../../validators').properties;
 const valuesValidator = require('../../validators/functionalities/valuesValidator');
 const paginationValidator = require('../../validators/functionalities/paginationValidator');
@@ -8,8 +8,8 @@ const paginationValidator = require('../../validators/functionalities/pagination
 
 router.post('/', paginationValidator(), valuesValidator(validators.suggestions).pickData, async (req,res, next) => {
     try {
-        let suggestionsServ = new suggestionsService();
-        let result = await suggestionsServ.getUserSuggestions(req.user, req.body);
+        let researchServ = new researchService();
+        let result = await researchServ.getUserResearch(req.user, req.body);
         res.status(200).json(result);
     } catch (error) {
         next(error);

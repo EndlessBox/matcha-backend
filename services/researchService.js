@@ -4,29 +4,12 @@ var GenderModel = require("../models/gender");
 var OrientationModel = require("../models/orientation");
 const locationService = require("./locationService");
 const config = require('../config/config');
+var suggestionService = require('./suggestionsService');
 
-module.exports = class suggestionsService {
+module.exports = class researchService {
   constructor() {}
 
-
-
-  manageTri(payload){
-    let keys = [];
-    let order = [];
-
-    Object.keys(payload).map(key => {
-      keys.push(key);
-      order.push(payload[key]);
-    })
-
-    return {
-      keys: keys, 
-      order: order
-    }
-  }
-
-
-  getUserSuggestions(user, payload) {
+  getUserResearch(user, payload) {
     return new Promise(async (resolve, reject) => {
       try {
         let userModel = new UserModel();
@@ -34,8 +17,8 @@ module.exports = class suggestionsService {
         let genderModel = new GenderModel();
         let orientationModel = new OrientationModel();
         let locationServ = new locationService();
+        let suggestionServ = new suggestionService();
 
-        console.log(user);
         let userGender = await genderModel.getGenderByAttribute(
           "id",
           user.genderId
@@ -52,12 +35,12 @@ module.exports = class suggestionsService {
         let connectedUserLocation = await locationServ.getUserLocation(user.id);
         
 
-        let {keys, order} = payload.tri && Object.keys(payload.tri).length ? this.manageTri(payload.tri) : this.manageTri(config.DefaultSuggestionsTri);
+        let {keys, order} = payload.tri && Object.keys(payload.tri).length ? suggestionServ.manageTri(payload.tri) : suggestionServ.manageTri(config.DefaultSuggestionsTri);
 
         let result = await userModel.getUserByGenderAndOrientationAndDistance(
           userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
           keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null,
-          payload.offset, payload.row_count
+          payload.offset, payload.row_count, 1
         );
       resolve(result);
       
