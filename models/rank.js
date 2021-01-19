@@ -12,8 +12,9 @@ module.exports = class rankModel {
                             SELECT ${boundry}(rankValue)
                             FROM \`rank\`);`
                 })
-                resolve(result[0].minXp);
+                resolve(result[0]);
             } catch(err) {
+                console.log(err);
                 reject(err);
             }
         })

@@ -32,6 +32,13 @@ module.exports = (fields = null) => {
         if (data.length > 100 || data.length < 5 || !lastNameRegex.test(data))
           return false;
         break;
+
+      case "birthDate":
+        var birthDateRegex = new RegExp(regex.birthDate);
+
+        if (!birthDateRegex.test(data))
+          return false;
+        break;
       case "password":
         var passwordRegex = new RegExp(regex.password);
         if (data.length > 100 || data.length < 5 || !passwordRegex.test(data))
