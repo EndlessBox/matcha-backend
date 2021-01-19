@@ -5,7 +5,7 @@
  */
 module.exports = {
     properties: {
-        signUpProperties: ["email", "userName", "firstName", "lastName", "password"],
+        signUpProperties: ["email", "userName", "firstName", "lastName", "password", "birthDate"],
         mailValidation: ["mailToken"],
         signIn: ["userName", "password"],
         forgetPassword: ["userName", "email"],
@@ -25,6 +25,7 @@ module.exports = {
         userName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         firstName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
         lastName: /^[a-zA-Z0-9](?:\w\.?){3,98}[a-zA-Z0-9]$/,
+        birthDate: /^\d{4}-[0-1]{1}[0-9]{1}-[0-3]{1}[0-9]{1}$/,
         password: /.{5,100}/,
         retryPassword: /.{5,100}/,
         mailToken: /[a-zA-Z0-9]{256}/,
@@ -33,8 +34,8 @@ module.exports = {
         tags: /^#[a-zA-Z0-9_]{2,15}$/,
         imageName: /^[0-9]{10,13}_[\w\s]+.[\w]{3,4}/,
         triValues: /\b(DESC|ASC)\b/,
-        triKeys: /\b(distance|communTags|experience)\b/,
-        filterKeys: /\b(distance|communTags|experience)\b/,
+        triKeys: /\b(distance|communTags|experience|age)\b/,
+        filterKeys: /\b(distance|communTags|experience|age)\b/,
         offset: /^\d{1,10}$/
     },
     isFloat: (number) => Number(number) === 0 || (Number(number) === number && number % 1 !== 0)
