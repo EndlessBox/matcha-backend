@@ -385,10 +385,20 @@ module.exports = class userService {
         let imageServ = new imageService();
         let orientationServ = new sexualOrientationService();
         let genderServ = new genderService();
+        let rankModel = new RankModel();
+
+        let userRank = await rankModel.getUserRank(user.id);
+
+
         user['ProfileImage'] = await imageServ.getUserProfilePicture(user.id);
         user['orientation'] = await orientationServ.getUserSexualOrientation(user.id);
         user['gender'] = await genderServ.getUserGender(user.id);
+        user['rank'] = userRank.rank
+
+        delete user.orientationId;
+        delete user.genderId;
         delete user.id;
+        delete user.rankId;
         resolve(user);
       } catch(err) {
         reject(err);

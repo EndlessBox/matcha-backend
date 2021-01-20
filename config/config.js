@@ -3,6 +3,9 @@ require("dotenv").config();
 module.exports = {
   serverPort: process.env.SERVER_PORT || 3000,
   serverHost: process.env.SERVER_HOST,
+
+  socketsPort: process.env.SOCKETS_PORT || 3002,
+  socketsHost: process.env.SOCKETS_HOST,
   
   nodeEnv: process.env.NODE_ENV || "Developement",
   

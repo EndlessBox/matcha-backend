@@ -1,4 +1,5 @@
 const server = require('./server')();
+const sockets = require('./subscribers/index');
 const configuration = require('./config/config');
 
 
@@ -14,4 +15,6 @@ const configuration = require('./config/config');
 
 
 server.create(configuration);
+sockets(server);
 server.start();
+

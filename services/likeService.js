@@ -1,6 +1,6 @@
 var LikeModel = require('../models/like');
 var UserModel = require('../models/user');
-var RankModel = require('../models/rank');
+var ImageModel = require('../models/image');
 var rankService = require('./rankService');
 var xpConfig = require('../config/config').Experience;
 
@@ -15,6 +15,7 @@ module.exports = class likeService {
             try {
                 let likeModel = new LikeModel();
                 let userModel = new UserModel();
+                let imageModel = new ImageModel();
                 let rankServ = new rankService();
 
 
@@ -24,11 +25,16 @@ module.exports = class likeService {
                 let liker = await userModel.getUserByAttribute('userName', payload.liker);
                 let liked = await userModel.getUserByAttribute('userName', payload.liked);
                 
+                let likerImageCount = await imageModel.getImagesCountByAttribute('userId', liker.id);
                 
 
                 
                 if (!liker || !liked)
                     return reject({message: "Invalide user.", status: 403});
+
+                if (!likerImageCount)
+                    return reject({message: `Unauthorized, user '${liker.userName}' must upload at least one picture.`, status: 403});
+
                 let likeId = await likeModel.createLike({liker: liker.id, liked: liked.id});
 
 
