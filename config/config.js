@@ -5,9 +5,11 @@ module.exports = {
   serverHost: process.env.SERVER_HOST,
 
   socketsPort: process.env.SOCKETS_PORT || 3002,
-  socketsHost: process.env.SOCKETS_HOST,
+
+  redisHost: process.env.REDIS_HOST || 'localhost',
+  redisPort: process.env.REDIS_PORT || 6379,
   
-  nodeEnv: process.env.NODE_ENV || "Developement",
+  nodeEnv: process.env.NODE_ENV || "developement",
   
   hashRounds: process.env.HASHROUNDS || 10,
 
