@@ -17,7 +17,7 @@ module.exports = class likeModel {
                     timeout: 40000
                 },
                 like)
-                resolve(results.insertedId);
+                resolve({result : results.insertedId, date: like['dateOfLike']});
             } catch (error) {
                 reject(error);
             }

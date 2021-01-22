@@ -36,7 +36,6 @@ module.exports = () => {
 
   var checkAccessTokenSockets = async (socket, next) => {
     try {
-      console.log("hey")
       if (!socket.handshake.auth.token)
         next({ message: "unauthorized.", status: 401 });
       let token = socket.handshake.auth.token.split(" ")[1] || null;
