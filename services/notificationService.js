@@ -1,13 +1,15 @@
 var NotificationModel = require("../models/notification");
+var userService = require('./userService');
 
 module.exports = class notificationService {
   constructor() {}
 
   createNotificationPayload(type, notifier, notified, dateOfNotification) {
+    let userServ = new userService();
     return {
       type: type,
-      notifier: { id: notifier.id, userName: notifier.userName },
-      notified: { id: notified.id, userName: notified.userName },
+      notifier: userServ.cleanUserResponse(notifier),
+      notified: userServ.cleanUserResponse(notified),
       date: dateOfNotification,
     };
   }
@@ -36,12 +38,23 @@ module.exports = class notificationService {
 
         let result = await notificationModel.getUserNotSeenNotifications(type, userId);
 
-        return(result.map(element => {
-            delete element.id;
-            delete element.seen;
-        }));
+        return(result);
     } catch (err) {
       throw err;
     }
   }
+
+  async updateNotificationSeen(notificationId) {
+    try {
+
+        let notificationModel = new NotificationModel();
+
+        let result = await notificationModel.updateNotificationAttribute('seen', 1, notificationId);
+
+        return(result);
+    } catch (err) {
+      throw err;
+    }
+  }
+  
 };

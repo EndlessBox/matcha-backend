@@ -9,7 +9,7 @@ var genderService = require("./genderService");
 var RankModel = require("../models/rank");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
-var sexualOrientationService = require('./sexualOrientationService');
+var sexualOrientationService = require("./sexualOrientationService");
 const config = require("../config/config");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
@@ -59,15 +59,14 @@ module.exports = class userService {
       var userModel = new UserModel();
       var rankModel = new RankModel();
       var emailServ = new emailService();
-      
-      
+
       var userId = null;
       var emailTransporter = emailServ.createTransporter();
       var user = this.setUpUserObject(payload, fields.signUpProperties);
-      var starterRank = await rankModel.getLimitValues('MIN'); 
+      var starterRank = await rankModel.getLimitValues("MIN");
 
-      user['rankId'] = starterRank.id;
-      user['experience'] = starterRank.minXp;
+      user["rankId"] = starterRank.id;
+      user["experience"] = starterRank.minXp;
       try {
         let activationObject = await this.setUpActivationKey(
           24 * 60 * 60 * 1000
@@ -294,8 +293,7 @@ module.exports = class userService {
   async manageTags(userData, user) {
     let tagModel = new TagModel();
 
-    if (typeof userData.tags === 'string')
-      userData.tags = [userData.tags];
+    if (typeof userData.tags === "string") userData.tags = [userData.tags];
     userData.tags.map(async (tag) => {
       try {
         let { resultId, offset } = await tagModel.createTag([tag]);
@@ -327,31 +325,23 @@ module.exports = class userService {
     delete userData.gender;
   }
 
-  
-
-  async updateUser(payload, user, images=null) {
+  async updateUser(payload, user, images = null) {
     return new Promise(async (resolve, reject) => {
       try {
-
         let userModel = new UserModel();
         let imageServ = new imageService();
         let sexualOrientationServ = new sexualOrientationService();
 
         let userData = this.setUpUserObject(payload, fields.updateUser);
 
-
         if (userData.tags) await this.manageTags(userData, user);
-
 
         if (images) await imageServ.manageImages(images, user.id);
 
-        if (userData.gender) 
-          await this.manageGender(userData, user);
-
+        if (userData.gender) await this.manageGender(userData, user);
 
         if (userData.orientation || !user.orientationId)
           await sexualOrientationServ.manageOrientation(userData, user);
-          
 
         if (userData.password && userData.password !== userData.retryPassword)
           reject({ message: "password's doesnt match.", status: 400 });
@@ -365,7 +355,7 @@ module.exports = class userService {
             config.hashRounds
           );
         }
-        if (Object.keys(userData).length) 
+        if (Object.keys(userData).length)
           await userModel.updateUser(userData, user.id);
         resolve({ message: "user updated succefully", status: 200 });
       } catch (err) {
@@ -373,15 +363,14 @@ module.exports = class userService {
           reject({ message: err, status: 400 });
           return;
         }
-        if (err)
-        reject(err);
+        if (err) reject(err);
       }
     });
   }
 
   getUserInfo(user) {
-    return new Promise(async(resolve, reject) => {
-      try{
+    return new Promise(async (resolve, reject) => {
+      try {
         let imageServ = new imageService();
         let orientationServ = new sexualOrientationService();
         let genderServ = new genderService();
@@ -389,22 +378,36 @@ module.exports = class userService {
 
         let userRank = await rankModel.getUserRank(user.id);
 
-
-        user['ProfileImage'] = await imageServ.getUserProfilePicture(user.id);
-        user['orientation'] = await orientationServ.getUserSexualOrientation(user.id);
-        user['gender'] = await genderServ.getUserGender(user.id);
-        user['rank'] = userRank.rank
+        user["ProfileImage"] = await imageServ.getUserProfilePicture(user.id);
+        user["orientation"] = await orientationServ.getUserSexualOrientation(
+          user.id
+        );
+        user["gender"] = await genderServ.getUserGender(user.id);
+        user["rank"] = userRank.rank;
 
         delete user.orientationId;
         delete user.genderId;
         delete user.id;
         delete user.rankId;
         resolve(user);
-      } catch(err) {
+      } catch (err) {
         reject(err);
       }
-    })
+    });
   }
 
-
+  cleanUserResponse(user) {
+    delete user.activationCode;
+    delete user.active;
+    delete user.expirationDate;
+    delete user.genderId;
+    delete user.locationId;
+    delete user.orientationId;
+    delete user.password;
+    delete user.rankId;
+    delete user.refreshToken;
+    delete user.resetPasswordExpirationDate;
+    delete user.resetPasswordToken;
+    return user;
+  }
 };

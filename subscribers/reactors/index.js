@@ -1,29 +1,57 @@
-var io = require('../../server').socketServer;
-const config = require('../../config/config');
-var cacheService = new (require('../../services/cacheService'));
-var notificationService = require('../../services/notificationService');
+var io = require("../../server").socketServer;
+const config = require("../../config/config");
+var cacheService = new (require("../../services/cacheService"))();
+var notificationService = require("../../services/notificationService");
 var cacheClient = cacheService.createCacheClient();
-var emmitor = require('../emmitors/index');
+var UserModel = require("../../models/user");
+var emmitor = require("../emmitors/index");
+const userService = require("../../services/userService");
 
+cacheClient.on("ready", () =>
+  console.log(
+    `Redis Server is working on <${config.redisHost}>, using port : <${config.redisPort}>`
+  )
+);
 
-cacheClient.on('ready', () => console.log(`Redis Server is working on <${config.redisHost}>, using port : <${config.redisPort}>`))
+io.on("connect_error", (error) => console.log(error));
 
-io.on('connect_error', error => console.log(error))
+io.on("connection", async (socket) => {
+  let notificationServ = new notificationService();
+  let userModel = new UserModel();
+  let userServ = new userService();
 
-io.on('connection',async socket => {
+  await cacheService.setNewCacheEntry(socket.user.id, socket.id);
 
-   let notificationServ = new notificationService();
+  var unseenNotification = await notificationServ.getUserWaitingNotifications(
+    "notified",
+    socket.user.id
+  );
+  var results = [];
 
-   await cacheService.setNewCacheEntry(socket.user.id, socket.id)
+  if (unseenNotification.length) {
+    results = unseenNotification.map(async (notification) => {
 
+      
+      notification.notified = socket.user;
+      notification.notifier = await userModel.getUserByAttribute(
+        "id",
+        notification.notifier
+        );
+        
+        
+      notification.notifier = userServ.cleanUserResponse(notification.notifier);
+        
+      
+      await notificationServ.updateNotificationSeen(notification.id);
 
-   // I AM HERE ! !!!!!!!!!!!
-   let unseenNotification = await notificationServ.getUserWaitingNotifications('notified', socket.user.id);
-   console.log(unseenNotification)
-   // emmitor('notification', )
+      delete notification.seen;
+      return notification;
+    });
 
+    emmitor("notification", await Promise.all(results), socket.id);
+  }
 
-   socket.on('disconnect', async  () => {
-      await cacheService.deleteCacheEntry(socket.user.id);
-   } )
-})
+  socket.on("disconnect", async () => {
+    await cacheService.deleteCacheEntry(socket.user.id);
+  });
+});

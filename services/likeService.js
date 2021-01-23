@@ -101,7 +101,12 @@ module.exports = class likeService {
       try {
         let userModel = new UserModel();
         let likeModel = new LikeModel();
+        let notificationModel = new NotificationModel();
+        let cacheServ = new cacheService();
         let rankServ = new rankService();
+        let notificationServ = new notificationService();
+        let cacheClient = cacheServ.createCacheClient();
+
 
         let liker = await userModel.getUserByAttribute(
           "userName",
@@ -114,7 +119,19 @@ module.exports = class likeService {
         if (!liker | !liked)
           return resolve({ message: "user not found", status: 404 });
 
-        await likeModel.deleteLike(liker.id, liked.id);
+        let {date} = await likeModel.deleteLike(liker.id, liked.id);
+
+
+        let likedSocketId = await cacheServ.getUserSocketId(
+          liked.id,
+          cacheClient
+        );
+
+        await notificationModel.createNotificattion(
+          notificationServ.createNotificationDbPayload("unlike", liker.id, liked.id, likedSocketId ? 1 : 0,  date)
+        );
+        if (likedSocketId)
+            emmitors('notification',notificationServ.createNotificationPayload("unlike", liker, liked, date), likedSocketId);
 
         let newUserExperience = await rankServ.calculateUserExperience(
           xpConfig.dislike,
