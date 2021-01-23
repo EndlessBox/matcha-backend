@@ -388,6 +388,7 @@ module.exports = class userService {
         user['ProfileImage'] = await imageServ.getUserProfilePicture(user.id);
         user['orientation'] = await orientationServ.getUserSexualOrientation(user.id);
         user['gender'] = await genderServ.getUserGender(user.id);
+        user.birthDate = user.birthDate.toISOString().split('T')[0]
         delete user.id;
         resolve(user);
       } catch(err) {
