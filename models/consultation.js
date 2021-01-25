@@ -17,7 +17,7 @@ module.exports = class consultationModel {
                     timeout: 40000
                 },
                 consultation)
-                resolve(results.insertedId);
+                resolve({insertedId: results.insertedId, date:consultation.dateOfConsult});
             } catch (error) {
                 reject(error);
             }
@@ -36,6 +36,23 @@ module.exports = class consultationModel {
                 resolve(results);
             } catch (error) {
                 reject(error);
+            }
+        })
+    }
+
+
+    getUsersConsultation(consulterId, consultedId) {
+        return new Promise(async (resolve, reject) => {
+            try{
+                
+                let [results, _] = await dbConnection.query({
+                    sql: `SELECT c.* FROM consults c WHERE c.consulter=? AND c.consulted=? AND c.dateOfConsult=(SELECT MAX(c1.dateOfConsult) from consults c1)`
+                }, [consulterId, consultedId])
+                
+                resolve(results[0]);
+
+            }catch(err) {
+                reject(err);
             }
         })
     }

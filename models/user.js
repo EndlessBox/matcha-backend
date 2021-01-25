@@ -29,7 +29,7 @@ module.exports = class userModel {
       try {
         const [result, _] = await dbConnection.query(
           {
-            sql: `SELECT * FROM \`user\` WHERE ${attribute}=?`,
+            sql: `SELECT *, year(NOW())- year(u.birthDate) as age FROM \`user\` u WHERE ${attribute}=?`,
             timeout: 40000,
           },
           value

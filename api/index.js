@@ -25,6 +25,7 @@ var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
 var getResearch = require('./research/research')
 var getUserInfos = require('./user/getUserInfos');
+var otherUserInfos = require('./user/otherUserInfos');
 var createBlock = require('./block/createBlock');
 var deleteBlock = require('./block/deleteBlock');
 var createMatch = require('./match/createMatch');
@@ -43,6 +44,8 @@ router.use('/logout', authentication, logout);
 
 router.use('/updateProfile', authentication,  upload.array('images'), updateProfile);
 router.use('/userInfos', authentication, getUserInfos)
+
+router.use('/otherUserInfos', authentication, otherUserInfos);
 
 router.use('/like', authentication, createLike);
 router.use('/like', authentication, getLikes);

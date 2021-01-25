@@ -3,8 +3,13 @@ require("dotenv").config();
 module.exports = {
   serverPort: process.env.SERVER_PORT || 3000,
   serverHost: process.env.SERVER_HOST,
+
+  socketsPort: process.env.SOCKETS_PORT || 3002,
+
+  redisHost: process.env.REDIS_HOST || 'localhost',
+  redisPort: process.env.REDIS_PORT || 6379,
   
-  nodeEnv: process.env.NODE_ENV || "Developement",
+  nodeEnv: process.env.NODE_ENV || "developement",
   
   hashRounds: process.env.HASHROUNDS || 10,
 
@@ -62,6 +67,10 @@ module.exports = {
   DefaultSuggestionsTri : {
     distance: "ASC",
     communTags: "DESC"
+  },
+
+  Notifications: {
+    consultDelay: 15
   }
 
 };

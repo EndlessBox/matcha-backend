@@ -10,21 +10,17 @@ module.exports = class consultationService {
         return new Promise(async (resolve, reject) => {
             try {
                 let consultationModel = new ConsultationModel();
-                let userModel = new UserModel();
 
                 /*
                  *  Consult is initiated from the consulter side ! 
                  */
-                if (user.userName !== payload.consulter)
+                if (user.id !== payload.consulter)
                     return reject({message: "Consult from outer source.", status: 403});
-                
-                let consulter = await userModel.getUserByAttribute('userName', payload.consulter);
-                let consulted = await userModel.getUserByAttribute('userName', payload.consulted);
-                
-                if (!consulter || !consulted)
-                    return reject({message: "Invalide user.", status: 403});
-                let consultId = await consultationModel.createConsultation({consulter: consulter.id, consulted: consulted.id});
-                resolve(consultId);
+            
+                let consultation = {consulter: payload.consulter, consulted: payload.consulted, dateOfConsult: new Date().toISOString}
+                let {consultId, date} = await consultationModel.createConsultation(consultation);
+
+                resolve({consultationId: consultId, date:date});
 
             } catch(err) {
                 if (err.code === 'ER_DUP_ENTRY' && err.errno == 1062)

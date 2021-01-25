@@ -32,6 +32,41 @@ module.exports = () => {
     }
   };
 
+
+
+  var checkAccessTokenSockets = async (socket, next) => {
+    try {
+      if (!socket.handshake.auth.token)
+        next({ message: "unauthorized.", status: 401 });
+      let token = socket.handshake.auth.token.split(" ")[1] || null;
+      let jwtVerification = promisify(jwt.verify);
+
+
+      if (!await jwtVerification(token, config.accessKeySecret))
+        next({ message: "unauthorized.", status: 401 });
+      
+      let userModel = new UserModel();
+      let payload = jwt.decode(token);
+      let {
+        password,
+        activationCode,
+        expirationDate,
+        active,
+        refreshToken,
+        resetPasswordToken,
+        resetPasswordExpirationDate,
+        locationId,
+        ...user
+      } = await userModel.getUserByAttribute("userName", payload.userName);
+      socket['user'] = user;
+      console.log(user.userName);
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+
+
   var generateAccessToken = (refreshToken) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -66,5 +101,6 @@ module.exports = () => {
   return {
     checkAccessToken: checkAccessToken,
     generateAccessToken: generateAccessToken,
+    checkAccessTokenSockets: checkAccessTokenSockets
   };
 };

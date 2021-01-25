@@ -17,7 +17,7 @@ module.exports = class likeModel {
                     timeout: 40000
                 },
                 like)
-                resolve(results.insertedId);
+                resolve({result : results.insertedId, date: like['dateOfLike']});
             } catch (error) {
                 reject(error);
             }
@@ -47,7 +47,7 @@ module.exports = class likeModel {
                     sql: "DELETE FROM `likes` l WHERE l.liker=? AND l.liked=?"
                 }, [likerId, likedId]);
 
-                resolve(results.affectedRows);
+                resolve({result: results.affectedRows, date: new Date()});
             } catch (error) {
                 reject(error)
             }
