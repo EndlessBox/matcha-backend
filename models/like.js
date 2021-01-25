@@ -53,4 +53,20 @@ module.exports = class likeModel {
             }
         })
     }
+
+    checkUsersConnection(user1Id, user2Id) {
+        return new Promise(async (resolve, reject) => { 
+            try{
+
+                let [results, _] = await dbConnection.query({
+                    sql: "SELECT Count(l.id) as count from `likes` l where (l.liker=? AND l.liked=?) OR (l.liker=? AND l.liked=?)"
+                }, [user1Id, user2Id, user2Id, user1Id]);
+
+                resolve(results[0].count);
+                    
+            } catch(err) {
+                reject(err);
+            }
+        })
+      }
 }
