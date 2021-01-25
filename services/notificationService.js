@@ -1,10 +1,10 @@
 var NotificationModel = require("../models/notification");
-var userService = require('./userService');
 
 module.exports = class notificationService {
   constructor() {}
-
+  
   createNotificationPayload(type, notifier, notified, dateOfNotification) {
+    var userService = require('./userService');
     let userServ = new userService();
     return {
       type: type,

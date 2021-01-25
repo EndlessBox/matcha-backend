@@ -67,6 +67,10 @@ module.exports = {
   DefaultSuggestionsTri : {
     distance: "ASC",
     communTags: "DESC"
+  },
+
+  Notifications: {
+    consultDelay: 15
   }
 
 };

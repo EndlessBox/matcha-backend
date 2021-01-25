@@ -32,7 +32,7 @@ io.on("connection", async (socket) => {
     results = unseenNotification.map(async (notification) => {
 
       
-      notification.notified = socket.user;
+      notification.notified = userServ.cleanUserResponse(socket.user);
       notification.notifier = await userModel.getUserByAttribute(
         "id",
         notification.notifier

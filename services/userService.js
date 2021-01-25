@@ -10,11 +10,17 @@ var RankModel = require("../models/rank");
 var emailService = require("./emailService");
 var imageService = require("./imageService");
 var sexualOrientationService = require("./sexualOrientationService");
+var consultationService = require("./consultationService");
+var ConsultationModel = require("../models/consultation");
 const config = require("../config/config");
+const cacheService = require("./cacheService");
+const notificationService = require("./notificationService");
+const NotificationModel = require("../models/notification");
 var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
 var fields = require("../validators").properties;
+var emmitors = require("../subscribers/emmitors/index");
 
 var validator = require("../validators/functionalities/valuesValidator")()
   .internValidator;
@@ -391,6 +397,90 @@ module.exports = class userService {
         delete user.rankId;
         resolve(user);
       } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  otherUserInfos(searcher, searchedId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let userModel = new UserModel();
+        let notificationModel = new NotificationModel();
+        let consultationModel = new ConsultationModel();
+        let imageServ = new imageService();
+        let orientationServ = new sexualOrientationService();
+        let genderServ = new genderService();
+        let consultationServ = new consultationService();
+        let notificationServ = new notificationService();
+        let rankModel = new RankModel();
+        let cacheServ = new cacheService();
+
+        let result = await userModel.getUserByAttribute("id", searchedId);
+
+        if (!result) return reject({ message: "User not found.", status: 404 });
+
+        // CREATE CONSULTATION.
+
+        if (searcher.id != searchedId) {
+          let lastConsultation = await consultationModel.getUsersConsultation(
+            searcher.id,
+            searchedId
+          );
+
+          let interval = Date.now() - new Date(lastConsultation?.dateOfConsult);
+          if (
+            !lastConsultation ||
+            (!isNaN(interval) &&
+              interval > config.Notifications.consultDelay * 60000)
+          ) {
+            let { date } = await consultationServ.createConsultation(
+              { consulter: searcher.id, consulted: searchedId },
+              searcher
+            );
+
+            let consultedSocketId = await cacheServ.getUserSocketId(
+              searchedId
+            );
+
+            await notificationModel.createNotificattion(
+              notificationServ.createNotificationDbPayload(
+                "consult",
+                searcher.id,
+                searchedId,
+                consultedSocketId ? 1 : 0,
+                date
+              )
+            );
+
+
+            if (consultedSocketId)
+              emmitors(
+                "notification",
+                notificationServ.createNotificationPayload(
+                  "consult",
+                  searcher,
+                  result,
+                  date
+                ),
+                consultedSocketId
+              );
+          }
+        }
+
+        result["ProfileImage"] = await imageServ.getUserProfilePicture(
+          searchedId
+        );
+        result["orientation"] = await orientationServ.getUserSexualOrientation(
+          searchedId
+        );
+        result["gender"] = await genderServ.getUserGender(searchedId);
+        result["rank"] = (await rankModel.getUserRank(searchedId)).rank;
+
+        delete result.email;
+        resolve(this.cleanUserResponse(result));
+      } catch (err) {
+        console.error(err);
         reject(err);
       }
     });
