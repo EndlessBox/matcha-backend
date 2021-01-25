@@ -59,7 +59,6 @@ module.exports = () => {
         ...user
       } = await userModel.getUserByAttribute("userName", payload.userName);
       socket['user'] = user;
-      console.log(user.userName);
       next();
     } catch (err) {
       next(err);
