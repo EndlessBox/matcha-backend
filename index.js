@@ -1,5 +1,5 @@
 const server = require('./server');
-const sockets = require('./subscribers/reactors/index');
+const sockets = require('./suckit/reactors/index');
 const configuration = require('./config/config');
 
 
