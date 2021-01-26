@@ -5,7 +5,7 @@ var NotificationModel = require("../models/notification");
 var rankService = require("./rankService");
 var cacheService = require("./cacheService");
 var notificationService = require("./notificationService");
-var emmitors = require("../subscribers/emmitors/index");
+var emmitors = require("../suckit/emmitors/index");
 var xpConfig = require("../config/config").Experience;
 
 module.exports = class likeService {

@@ -20,7 +20,7 @@ var emailConfig = config.Mailing;
 var mailContent = config.Contents.mailVerification;
 var resetContent = config.Contents.passwordReset;
 var fields = require("../validators").properties;
-var emmitors = require("../subscribers/emmitors/index");
+var emmitors = require("../suckit/emmitors/index");
 
 var validator = require("../validators/functionalities/valuesValidator")()
   .internValidator;
