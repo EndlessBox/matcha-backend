@@ -2,12 +2,13 @@ var io = require("../../server").socketServer;
 const config = require("../../config/config");
 var cacheService = new (require("../../services/cacheService"))();
 var notificationService = require("../../services/notificationService");
+var userService = require("../../services/userService");
+var matchService = require("../../services/matchService");
 var cacheClient = cacheService.createCacheClient();
 var UserModel = require("../../models/user");
 var LikeModel = require("../../models/like");
 var MessageModel = require("../../models/message");
 var emmitor = require("../emmitors/index");
-const userService = require("../../services/userService");
 
 cacheClient.on("ready", () =>
   console.log(
@@ -15,8 +16,8 @@ cacheClient.on("ready", () =>
   )
 );
 
-cacheClient.on('error', function(err) {
-  console.log('Redis error: ' + err);
+cacheClient.on("error", function (err) {
+  console.log("Redis error: " + err);
 });
 
 io.on("connect_error", (error) => console.log(error));
@@ -26,8 +27,9 @@ io.on("connection", async (socket) => {
     let notificationServ = new notificationService();
     let userModel = new UserModel();
     let likeModel = new LikeModel();
-    let userServ = new userService();
     let messageModel = new MessageModel();
+    let userServ = new userService();
+    let matchServ = new matchService();
 
     await cacheService.setNewCacheEntry(socket.user.id, socket.id);
 
@@ -123,11 +125,29 @@ io.on("connection", async (socket) => {
         );
     });
 
+
+    socket.on("checkConnectedUser", async (id) => {
+      let socketId = await cacheService.getUserSocketId(id);
+
+      
+      let user = await userModel.getUserByAttribute('id', id);
+
+      if (!user)
+        return emmitor("error", "user not found.", socket.id);
+
+      if (!socketId)
+        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, false, user.lastSeen), socket.id);
+      else
+        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, true, null), socket.id);
+
+    })
+
     socket.on("disconnect", async () => {
+      await userModel.updateUserAttribute("lastSeen", new Date(), socket.user.id);
       await cacheService.deleteCacheEntry(socket.user.id);
     });
   } catch (error) {
-    console.log(error)
+    console.error(error);
     emmitor("error", error, socket.id);
   }
 });

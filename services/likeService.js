@@ -1,6 +1,7 @@
 var LikeModel = require("../models/like");
 var UserModel = require("../models/user");
 var ImageModel = require("../models/image");
+var matchService = require("./matchService");
 var NotificationModel = require("../models/notification");
 var rankService = require("./rankService");
 var cacheService = require("./cacheService");
@@ -21,6 +22,7 @@ module.exports = class likeService {
         let rankServ = new rankService();
         let cacheServ = new cacheService();
         let notificationServ = new notificationService();
+        let matchServ = new matchService();
         let cacheClient = cacheServ.createCacheClient();
 
         if (user.userName !== payload.liker)
@@ -59,11 +61,43 @@ module.exports = class likeService {
           cacheClient
         );
 
+        let likerSocketId = await cacheServ.getUserSocketId(
+          liker.id,
+          cacheClient
+        );
+
+        if ((await likeModel.checkUsersConnection(liker.id, liked.id)) == 2) {
+          if (await matchServ.createMatch({ matcher: liker.userName, matched: liked.userName },liker))
+          {
+            await notificationModel.createNotificattion(notificationServ.createNotificationDbPayload("match", liker.id, liked.id, likedSocketId ? 1 : 0, date));
+            await notificationModel.createNotificattion(notificationServ.createNotificationDbPayload("match", liked.id, liker.id, likerSocketId ? 1 : 0, date));
+
+            emmitors("notification", notificationServ.createNotificationPayload("match", liked, liker, date), likerSocketId);
+            emmitors("notification", notificationServ.createNotificationPayload("match", liker, liked, date), likedSocketId);
+            
+          }
+        }
+
         await notificationModel.createNotificattion(
-          notificationServ.createNotificationDbPayload("like", liker.id, liked.id, likedSocketId ? 1 : 0,  date)
+          notificationServ.createNotificationDbPayload(
+            "like",
+            liker.id,
+            liked.id,
+            likedSocketId ? 1 : 0,
+            date
+          )
         );
         if (likedSocketId)
-            emmitors('notification',notificationServ.createNotificationPayload("like", liker, liked, date), likedSocketId);
+          emmitors(
+            "notification",
+            notificationServ.createNotificationPayload(
+              "like",
+              liker,
+              liked,
+              date
+            ),
+            likedSocketId
+          );
 
         /*
          *  After creating like were updating the liked value with the like amout + rankValue of the liker as percentage.
@@ -107,7 +141,6 @@ module.exports = class likeService {
         let notificationServ = new notificationService();
         let cacheClient = cacheServ.createCacheClient();
 
-
         let liker = await userModel.getUserByAttribute(
           "userName",
           payload.liker
@@ -119,8 +152,7 @@ module.exports = class likeService {
         if (!liker | !liked)
           return resolve({ message: "user not found", status: 404 });
 
-        let {date} = await likeModel.deleteLike(liker.id, liked.id);
-
+        let { date } = await likeModel.deleteLike(liker.id, liked.id);
 
         let likedSocketId = await cacheServ.getUserSocketId(
           liked.id,
@@ -128,10 +160,25 @@ module.exports = class likeService {
         );
 
         await notificationModel.createNotificattion(
-          notificationServ.createNotificationDbPayload("unlike", liker.id, liked.id, likedSocketId ? 1 : 0,  date)
+          notificationServ.createNotificationDbPayload(
+            "unlike",
+            liker.id,
+            liked.id,
+            likedSocketId ? 1 : 0,
+            date
+          )
         );
         if (likedSocketId)
-            emmitors('notification',notificationServ.createNotificationPayload("unlike", liker, liked, date), likedSocketId);
+          emmitors(
+            "notification",
+            notificationServ.createNotificationPayload(
+              "unlike",
+              liker,
+              liked,
+              date
+            ),
+            likedSocketId
+          );
 
         let newUserExperience = await rankServ.calculateUserExperience(
           xpConfig.dislike,

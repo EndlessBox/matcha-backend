@@ -53,4 +53,18 @@ module.exports = class matchModel {
             }
         })
     }
+
+    getUserMatches(userId) {
+        return new Promise (async(resolve, reject) => {
+            try {
+                let [results, _] = await dbConnection.query({
+                    sql: "SELECT m.* FROM `match` m where (m.matcher=? OR m.matched=?)"
+                }, [userId, userId])
+                
+                resolve(results);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
 }

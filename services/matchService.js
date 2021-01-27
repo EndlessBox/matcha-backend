@@ -2,6 +2,7 @@ let MatchModel = require('../models/match');
 let UserModel = require('../models/user');
 let rankService = require('./rankService');
 var xpConfig = require('../config/config').Experience;
+var cacheService = new (require("./cacheService"))();
 
 module.exports = class matchService {
     constructor(){}
@@ -66,6 +67,29 @@ module.exports = class matchService {
 
             } catch (error) {
                 reject(error)
+            }
+        })
+    }
+
+    getUserConnectedMatchesSocketsId (userId) {
+        return new Promise(async(resolve, reject) => {
+            try {
+
+                let matchModel = new MatchModel();
+                let userMatches = await matchModel.getUserMatches(userId);
+                
+                if (!userMatches.length)
+                    return resolve([]);
+
+                let result = userMatches.map(async match => {
+                    let notifiedSocket = await cacheService.getUserSocketId(match.matcher === userId ? match.matched : match.matcher);
+                    if (notifiedSocket)
+                        return (notifiedSocket)
+                })
+
+                resolve(Promise.all(result));
+            } catch(err) {
+                reject(err);
             }
         })
     }

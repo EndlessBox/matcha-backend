@@ -14,6 +14,15 @@ module.exports = class notificationService {
     };
   }
 
+
+  createCheckConnectionResponsePayload(userId, connected, lastSeen) {
+    return {
+      userId: userId,
+      connected: connected,
+      lastSeen: lastSeen
+    }
+  }
+
   createNotificationDbPayload(
     type,
     notifierId,
