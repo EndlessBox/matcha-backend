@@ -34,6 +34,23 @@ module.exports = class locationService {
         })
     }
 
+    updateLocation(payload, user) {
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                let locationModel = new LocationModel();
+
+
+                let result = await locationModel.updateLocation(payload, user.id);
+
+                resolve(result ? {message: "Location updated succefuly", status: 200} : {});
+                
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
 
     degreesToRadians(degrees) {
         return degrees * Math.PI / 180;

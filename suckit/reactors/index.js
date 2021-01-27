@@ -15,6 +15,10 @@ cacheClient.on("ready", () =>
   )
 );
 
+cacheClient.on('error', function(err) {
+  console.log('Redis error: ' + err);
+});
+
 io.on("connect_error", (error) => console.log(error));
 
 io.on("connection", async (socket) => {

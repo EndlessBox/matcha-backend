@@ -20,6 +20,7 @@ var createConsultation = require('./consultations/createConsultation');
 var getConsultations = require('./consultations/getConsultation');
 var createLocation = require('./location/createLocation');
 var getLocation = require('./location/getLocation');
+var updateLocation = require('./location/updateLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
 var getSuggestions = require('./suggestions/suggestions');
@@ -58,6 +59,7 @@ router.use('/consultation', authentication, getConsultations);
 
 router.use('/location', authentication, createLocation);
 router.use('/location',authentication, getLocation);
+router.use('/location', authentication, updateLocation);
 
 
 router.use('/image', authentication, deleteImage);

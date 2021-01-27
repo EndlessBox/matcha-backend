@@ -34,4 +34,20 @@ module.exports = class locationModel {
             }
         })
     }
+
+    updateLocation(payload, userId) {
+        return new Promise(async (resolve, reject) => {
+            try{
+
+                let [result, _] = await dbConnection.query({
+                    sql: "UPDATE `location` l SET ? WHERE l.id=(SELECT u.locationId from `user` u where u.id=?)"
+                }, [payload, userId])
+
+                resolve(result.affectedRows)
+
+            }catch(err) {
+                reject(err);
+            }
+        })
+    }
 }
