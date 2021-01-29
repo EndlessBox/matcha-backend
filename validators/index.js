@@ -11,7 +11,7 @@ module.exports = {
         forgetPassword: ["userName", "email"],
         resetPassword: ["password", "retryPassword", "passwordToken"],
         logOut: ["userName"],
-        updateUser: ["email", "firstName", "lastName", "password", "retryPassword", "gender", "orientation", "bio", "tags"],
+        updateUser: ["email", "firstName", "lastName", "password", "retryPassword", "gender", "orientation", "bio", "tags", "birthDate"],
         createLike: ["liker", "liked"],
         createConsultation: ["consulter", "consulted"],
         createLocation: ["latitude", "longitude", "altitude"],
