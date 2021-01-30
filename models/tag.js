@@ -65,4 +65,20 @@ module.exports = class tagModel {
 
     })
   }
+
+  async getUserTags (userId) {
+    return new Promise(async (resolve, reject) => {
+      try{
+
+        let [results, _] = await dbConnection.query({
+          sql: "SELECT t.* FROM tag t INNER JOIN user_tag ut ON t.id=ut.tagId INNER JOIN user u ON ut.userId=u.id WHERE u.id=?" 
+        }, userId)
+
+        resolve(results);
+
+      } catch(err) {
+        reject(err);
+      }
+    })
+  }
 };

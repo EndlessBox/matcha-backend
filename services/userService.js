@@ -381,15 +381,18 @@ module.exports = class userService {
         let orientationServ = new sexualOrientationService();
         let genderServ = new genderService();
         let rankModel = new RankModel();
+        let tagModel = new TagModel();
 
         let userRank = await rankModel.getUserRank(user.id);
 
-        user["ProfileImage"] = await imageServ.getUserProfilePicture(user.id);
+        user["images"] = await imageServ.getUserImages(user.id);
         user["orientation"] = await orientationServ.getUserSexualOrientation(
           user.id
         );
         user["gender"] = await genderServ.getUserGender(user.id);
         user["rank"] = userRank.rank;
+
+        user["tags"] = await tagModel.getUserTags(user.id);
 
         delete user.orientationId;
         delete user.genderId;
@@ -408,6 +411,7 @@ module.exports = class userService {
         let userModel = new UserModel();
         let notificationModel = new NotificationModel();
         let consultationModel = new ConsultationModel();
+        let tagModel = new TagModel();
         let imageServ = new imageService();
         let orientationServ = new sexualOrientationService();
         let genderServ = new genderService();
@@ -468,7 +472,8 @@ module.exports = class userService {
           }
         }
 
-        result["ProfileImage"] = await imageServ.getUserProfilePicture(
+        result["tags"] = await tagModel.getUserTags(searchedId);
+        result["images"] = await imageServ.getUserImages(
           searchedId
         );
         result["orientation"] = await orientationServ.getUserSexualOrientation(
