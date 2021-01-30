@@ -392,7 +392,9 @@ module.exports = class userService {
         user["gender"] = await genderServ.getUserGender(user.id);
         user["rank"] = userRank.rank;
 
-        user["tags"] = await tagModel.getUserTags(user.id);
+        user["tags"] = (await tagModel.getUserTags(user.id)).map(
+          (elem) => elem.tag
+        );
 
         delete user.orientationId;
         delete user.genderId;
@@ -443,9 +445,7 @@ module.exports = class userService {
               searcher
             );
 
-            let consultedSocketId = await cacheServ.getUserSocketId(
-              searchedId
-            );
+            let consultedSocketId = await cacheServ.getUserSocketId(searchedId);
 
             await notificationModel.createNotificattion(
               notificationServ.createNotificationDbPayload(
@@ -456,7 +456,6 @@ module.exports = class userService {
                 date
               )
             );
-
 
             if (consultedSocketId)
               emmitors(
@@ -472,10 +471,10 @@ module.exports = class userService {
           }
         }
 
-        result["tags"] = await tagModel.getUserTags(searchedId);
-        result["images"] = await imageServ.getUserImages(
-          searchedId
+        result["tags"] = (await tagModel.getUserTags(searchedId)).map(
+          (elem) => elem.tag
         );
+        result["images"] = await imageServ.getUserImages(searchedId);
         result["orientation"] = await orientationServ.getUserSexualOrientation(
           searchedId
         );
