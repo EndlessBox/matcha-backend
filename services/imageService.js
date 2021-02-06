@@ -70,13 +70,13 @@ module.exports = class imageService {
     });
   }
 
-  deleteImage(payload, user) {
+  deleteImage(imageName, user) {
     return new Promise(async (resolve, reject) => {
       try {
         let imageModel = new ImageModel();
         let image = await imageModel.getImageByAttribute(
           "image",
-          payload.imageName
+          imageName
         );
         if (image) {
           if (image.isProfilePicture) {
@@ -91,9 +91,9 @@ module.exports = class imageService {
               );
           }
           await fs.unlink(
-            path.join(__dirname, config.imagesUploadLocation, payload.imageName)
+            path.join(__dirname, config.imagesUploadLocation, imageName)
           );
-          await imageModel.deleteImageByAttribute("image", payload.imageName);
+          await imageModel.deleteImageByAttribute("image", imageName);
         } else reject({ message: "Image not found.", status: 400 });
         resolve("image deleted succefully");
       } catch (error) {

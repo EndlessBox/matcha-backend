@@ -4,12 +4,12 @@ var valueValidator = require('../../validators/functionalities/valuesValidator')
 var validators = require('../../validators').properties;
 var imageService = require('../../services/imageService');
 
-router.delete('/', propertiesValidator(validators.deleteImage), valueValidator(validators.deleteImage).valueValidator, async (req, res, next) => {
+router.delete('/:imageName', async (req, res, next) => {
     try {
         let imageServ = new imageService();
         let result = {
             status: 200,
-            message: await imageServ.deleteImage(req.body, req.user)
+            message: await imageServ.deleteImage(req.params.imageName, req.user)
         }
         res.status(200).json(result);
     }catch(error) {

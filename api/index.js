@@ -23,6 +23,7 @@ var getLocation = require('./location/getLocation');
 var updateLocation = require('./location/updateLocation');
 var deleteImage = require('./image/deleteImage');
 var getImages = require('./image/getImages');
+var getProfilePicture = require('./image/getProfilePicture');
 var getSuggestions = require('./suggestions/suggestions');
 var getResearch = require('./research/research')
 var getUserInfos = require('./user/getUserInfos');
@@ -64,6 +65,7 @@ router.use('/location', authentication, updateLocation);
 
 router.use('/image', authentication, deleteImage);
 router.use('/image', authentication, getImages);
+router.use('/profilePicture', authentication, getProfilePicture);
 
 
 router.use('/suggestions', authentication, getSuggestions);
