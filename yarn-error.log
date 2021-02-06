@@ -1,0 +1,52 @@
+Arguments: 
+  /Users/msidqi/.brew/Cellar/node/15.3.0/bin/node /Users/msidqi/.brew/Cellar/yarn/1.22.10/libexec/bin/yarn.js
+
+PATH: 
+  /Users/msidqi/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Users/msidqi/.brew/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  15.3.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: ENOSPC: no space left on device, mkdir '/Users/msidqi/Library/Caches/Yarn/v6/npm-bcrypt-5.0.0-051407c7cd5ffbfb773d541ca3760ea0754e37e2-integrity'
+
+npm manifest: 
+  {
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start:dev": "nodemon index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "bcrypt": "^5.0.0",
+      "cookie-parser": "^1.4.5",
+      "cors": "^2.8.5",
+      "dotenv": "^8.2.0",
+      "express": "^4.17.1",
+      "jsonwebtoken": "^8.5.1",
+      "morgan": "^1.10.0",
+      "multer": "^1.4.2",
+      "mysql2": "^2.2.5",
+      "nodemailer": "^6.4.16",
+      "nodemon": "^2.0.6",
+      "redis": "^3.0.2",
+      "socket.io": "^3.1.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
