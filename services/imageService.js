@@ -3,38 +3,69 @@ var fs = require("fs").promises;
 var promisify = require("util").promisify;
 var path = require("path");
 var config = require("../config/config");
+const { profileEnd } = require("console");
 
 module.exports = class imageService {
   constructor() {}
 
-  async manageImages(images, userId) {
+  async manageImages(images, userId, profilePictureName) {
     let imageModel = new ImageModel();
     let imageCount = await imageModel.getImagesCountByAttribute(
       "userId",
       userId
     );
-    let profilImage = await imageModel.getImagesCountByAttributeAndUserId(
+    let profilImage = await imageModel.getImageByAttribute(
       "isProfilePicture",
-      1,
-      userId
+      1
     );
+
+    if (profilePictureName) {
+      let newProfilePicture = await imageModel.getImageByAttribute(
+        "image",
+        profilePictureName
+      );
+      if (!newProfilePicture && imageCount < config.imagesMaxCount) {
+        newProfilePicture = images.filter(
+          (image) => image.originalname === profilePictureName
+        );
+        images = images.filter(
+          (image) => image.originalname !== profilePictureName
+        );
+        if (newProfilePicture.length) {
+          if (profilImage)
+            await imageModel.updateImageByAttribute(
+              "isProfilePicture",
+              0,
+              profilImage.id
+            );
+          await imageModel.createImage({
+            userId: userId,
+            image: newProfilePicture[0].filename,
+            isProfilePicture: 1,
+          });
+        }
+      } else if (newProfilePicture) {
+        if (profilImage)
+          await imageModel.updateImageByAttribute(
+            "isProfilePicture",
+            0,
+            profilImage.id
+          );
+        await imageModel.updateImageByAttribute(
+          "isProfilePicture",
+          1,
+          newProfilePicture.id
+        );
+      }
+    }
 
     images.map(async (image) => {
       if (imageCount < config.imagesMaxCount) {
         imageCount += 1;
-        if (profilImage !== 0)
-          await imageModel.createImage({
-            userId: userId,
-            image: image.filename,
-          });
-        else {
-          profilImage += 1;
-          await imageModel.createImage({
-            userId: userId,
-            image: image.filename,
-            isProfilePicture: 1,
-          });
-        }
+        await imageModel.createImage({
+          userId: userId,
+          image: image.filename,
+        });
       }
     });
   }
@@ -72,7 +103,10 @@ module.exports = class imageService {
   }
 
   async getImageBase64(imageName) {
-    return (await fs.readFile(path.join(__dirname, config.imagesUploadLocation, imageName),{encoding:"base64"}))
+    return await fs.readFile(
+      path.join(__dirname, config.imagesUploadLocation, imageName),
+      { encoding: "base64" }
+    );
   }
 
   getUserImages(userId) {
@@ -87,7 +121,7 @@ module.exports = class imageService {
           return {
             imageName: image.image,
             isProfilePicture: image.isProfilePicture,
-            imageBase64: await this.getImageBase64(image.image)
+            imageBase64: await this.getImageBase64(image.image),
           };
         });
 
@@ -98,22 +132,24 @@ module.exports = class imageService {
     });
   }
 
-  getUserProfilePicture (userId){
+  getUserProfilePicture(userId) {
     return new Promise(async (resolve, reject) => {
-      try{
-
+      try {
         let imageModele = new ImageModel();
-        let profileImage = await imageModele.getUserPictureByAttribute('isProfilePicture', 1, userId);
+        let profileImage = await imageModele.getUserPictureByAttribute(
+          "isProfilePicture",
+          1,
+          userId
+        );
         if (profileImage)
           resolve({
             imageName: profileImage.image,
-            imageBase64: await this.getImageBase64(profileImage.image)
-         })
-         else
-          resolve(profileImage)
-      }catch(err) {
+            imageBase64: await this.getImageBase64(profileImage.image),
+          });
+        else resolve(profileImage);
+      } catch (err) {
         reject(err);
       }
-    })
+    });
   }
 };

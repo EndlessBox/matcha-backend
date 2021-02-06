@@ -29,6 +29,7 @@ module.exports = {
       "bio",
       "tags",
       "birthDate",
+      "profilePictureName"
     ],
     createLike: ["liker", "liked"],
     createConsultation: ["consulter", "consulted"],

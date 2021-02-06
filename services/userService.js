@@ -342,7 +342,8 @@ module.exports = class userService {
 
         if (userData.tags) await this.manageTags(userData, user);
 
-        if (images) await imageServ.manageImages(images, user.id);
+        if (images || userData.profilePictureName !== null) await imageServ.manageImages(images, user.id, userData.profilePictureName);
+        delete userData.profilePictureName
 
         if (userData.gender) await this.manageGender(userData, user);
 
