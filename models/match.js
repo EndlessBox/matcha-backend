@@ -49,6 +49,7 @@ module.exports = class matchModel {
 
                 resolve(results.affectedRows);
             } catch (error) {
+                console.log(error)
                 reject(error)
             }
         })

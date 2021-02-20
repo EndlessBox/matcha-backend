@@ -139,6 +139,7 @@ module.exports = class likeService {
         let cacheServ = new cacheService();
         let rankServ = new rankService();
         let notificationServ = new notificationService();
+        let matchServ = new matchService();
         let cacheClient = cacheServ.createCacheClient();
 
         let liker = await userModel.getUserByAttribute(
@@ -151,6 +152,9 @@ module.exports = class likeService {
         );
         if (!liker | !liked)
           return resolve({ message: "user not found", status: 404 });
+
+        
+        await matchServ.deleteMatch({matcher: liker.userName, matched: liked.userName}, user);
 
         let { date } = await likeModel.deleteLike(liker.id, liked.id);
 
