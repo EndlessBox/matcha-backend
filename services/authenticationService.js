@@ -8,7 +8,7 @@ module.exports = () => {
     try {
       if (!req.headers.authorization)
         throw { message: "unauthorized.", status: 401 };
-      let token = req.headers.authorization.split(" ")[1] || null;
+      let token = req.headers?.authorization?.split(" ")[1] || null;
       let jwtVerification = promisify(jwt.verify);
 
       await jwtVerification(token, config.accessKeySecret);
@@ -38,7 +38,7 @@ module.exports = () => {
     try {
       if (!socket.handshake.auth.token)
         next({ message: "unauthorized.", status: 401 });
-      let token = socket.handshake.auth.token.split(" ")[1] || null;
+      let token = socket.handshake?.auth?.token?.split(" ")[1] || null;
       let jwtVerification = promisify(jwt.verify);
 
 

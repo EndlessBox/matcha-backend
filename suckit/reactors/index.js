@@ -29,7 +29,6 @@ io.on("connection", async (socket) => {
     let likeModel = new LikeModel();
     let messageModel = new MessageModel();
     let userServ = new userService();
-    let matchServ = new matchService();
 
     await cacheService.setNewCacheEntry(socket.user.id, socket.id);
 
@@ -96,7 +95,10 @@ io.on("connection", async (socket) => {
     socket.on("message", async (payload) => {
       console.log('message0')
       let sender = socket.user;
-      console.log('message1', payload)
+
+
+      if (!payload.to || !payload.message)
+        return emmitor("error", "Bad request.", socket.id)
       let receiver = await userModel.getUserByAttribute("userName", payload.to);
       console.log('message2')
 
@@ -150,7 +152,7 @@ io.on("connection", async (socket) => {
       await cacheService.deleteCacheEntry(socket.user.id);
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error", error);
     emmitor("error", error, socket.id);
   }
 });

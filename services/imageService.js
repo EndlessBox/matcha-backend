@@ -127,7 +127,7 @@ module.exports = class imageService {
 
         resolve(await Promise.all(response));
       } catch (error) {
-        resolve(error);
+        reject(error);
       }
     });
   }
