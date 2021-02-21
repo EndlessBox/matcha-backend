@@ -56,14 +56,20 @@ module.exports = class matchModel {
     }
 
     getUserMatches(userId) {
-        return new Promise (async(resolve, reject) => {
+        return new Promise (async (resolve, reject) => {
             try {
                 let [results, _] = await dbConnection.query({
-                    sql: "SELECT m.* FROM `match` m where (m.matcher=? OR m.matched=?)"
-                }, [userId, userId])
+                    sql: "SELECT u.id, u.userName, g.gender,o.orientation, u.experience FROM `user` u INNER JOIN `gender` g ON u.genderId=g.id INNER JOIN `sexualOrientation` o ON u.orientationId=o.id INNER JOIN `match` m ON u.id=m.matcher WHERE m.matched=?"
+                }, userId);        
                 
-                resolve(results);
+                let [results2, _2] = await dbConnection.query({
+                    sql: "SELECT u.id, u.userName, g.gender,o.orientation, u.experience FROM `user` u INNER JOIN `gender` g ON u.genderId=g.id INNER JOIN `sexualOrientation` o ON u.orientationId=o.id INNER JOIN `match` m ON u.id=m.matched WHERE m.matcher=?"
+                }, userId);
+                
+                let result = [results[0], results2[0]]
+                resolve(result);
             } catch (error) {
+                console.log(error)
                 reject(error);
             }
         })
