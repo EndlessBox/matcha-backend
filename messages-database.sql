@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 192.168.99.101
--- Generation Time: Jan 19, 2021 at 03:47 PM
+-- Generation Time: Feb 19, 2021 at 11:32 AM
 -- Server version: 8.0.22
 -- PHP Version: 7.4.12
 
@@ -20,14 +20,14 @@ SET time_zone = "+00:00";
 --
 -- Database: `matcha`
 --
+CREATE DATABASE IF NOT EXISTS matcha;
+USE matcha;
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `block`
 --
-CREATE DATABASE IF NOT EXISTS matcha;
-USE matcha;
 
 CREATE TABLE `block` (
   `id` int NOT NULL,
@@ -54,9 +54,9 @@ CREATE TABLE `consults` (
 --
 
 INSERT INTO `consults` (`id`, `consulter`, `consulted`, `dateOfConsult`) VALUES
-(1, 262, 260, '2020-12-05 13:19:17'),
-(3, 261, 260, '2020-12-05 13:21:16'),
-(5, 263, 260, '2020-12-05 13:30:02');
+(35, 261, 260, '2021-01-25 15:03:09'),
+(36, 260, 261, '2021-01-25 15:03:58'),
+(37, 260, 261, '2021-01-30 12:15:04');
 
 -- --------------------------------------------------------
 
@@ -116,7 +116,6 @@ INSERT INTO `images` (`id`, `image`, `userId`, `isProfilePicture`) VALUES
 (237, '1612626431435_1r4a7668.jpg', 307, 1),
 (238, '1612621436097_1.png', 308, 1),
 (239, '1607329039023_leftBG copy 3.jpg', 309, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -135,8 +134,8 @@ CREATE TABLE `likes` (
 --
 
 INSERT INTO `likes` (`id`, `liker`, `liked`, `dateOfLike`) VALUES
-(38, 260, 262, '2020-12-16 18:17:12'),
-(39, 260, 274, '2021-01-08 09:22:25');
+(118, 260, 261, '2021-01-27 15:51:03'),
+(119, 261, 260, '2021-01-27 15:51:15');
 
 -- --------------------------------------------------------
 
@@ -159,7 +158,7 @@ INSERT INTO `location` (`id`, `latitude`, `longitude`, `altitude`) VALUES
 (5, -5.89788, 32.8821, 0),
 (6, -6.93476, 32.886, 0),
 (7, -7, 38, 0),
-(8, -4.93476, 32.886, 0);
+(8, 15, 5, 10);
 
 -- --------------------------------------------------------
 
@@ -173,6 +172,123 @@ CREATE TABLE `match` (
   `matched` int NOT NULL,
   `dateOfMatch` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `match`
+--
+
+INSERT INTO `match` (`id`, `matcher`, `matched`, `dateOfMatch`) VALUES
+(17, 261, 260, '2021-01-27 15:51:15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int NOT NULL,
+  `sender` int NOT NULL,
+  `receiver` int NOT NULL,
+  `content` text NOT NULL,
+  `date` datetime NOT NULL,
+  `seen` tinyint NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `sender`, `receiver`, `content`, `date`, `seen`) VALUES
+(1, 260, 261, 'Hello user 2', '2021-01-25 18:02:17', 1),
+(2, 260, 261, 'Hello user 2', '2021-01-25 18:02:24', 1),
+(3, 261, 260, 'Hello user 2', '2021-01-25 18:03:29', 1),
+(4, 260, 261, 'Hello user 2', '2021-01-25 18:04:25', 1),
+(5, 261, 260, 'Hello user 2', '2021-01-25 18:04:28', 1),
+(6, 260, 261, 'Hello user 2', '2021-01-25 18:04:56', 1),
+(7, 260, 261, 'Hello user 2', '2021-01-25 18:04:59', 1),
+(8, 260, 261, 'Hello user 2', '2021-01-25 18:05:17', 1),
+(9, 260, 261, 'Hello user 2', '2021-01-25 18:05:18', 1),
+(10, 261, 260, 'Hello user 2', '2021-01-25 18:05:26', 1),
+(11, 261, 260, 'Hello user 2', '2021-01-25 18:05:39', 1),
+(12, 261, 260, 'Hello user 2', '2021-01-25 18:05:39', 1),
+(13, 261, 260, 'Hello user 2', '2021-01-25 18:05:40', 1),
+(14, 261, 260, 'Hello user 2', '2021-01-25 18:05:40', 1),
+(15, 260, 261, 'Hello user 2', '2021-01-25 18:05:55', 1),
+(16, 261, 260, 'Hello user 2', '2021-01-25 18:07:23', 1),
+(17, 261, 260, 'Hello user 2', '2021-01-25 18:08:24', 1),
+(18, 261, 260, 'Hello user 2', '2021-01-25 18:08:37', 1),
+(19, 261, 260, 'Hello user 2', '2021-01-25 18:08:44', 1),
+(20, 261, 260, 'Hello user 2', '2021-01-25 18:09:01', 1),
+(21, 261, 260, 'Hello user 2', '2021-01-25 18:09:23', 1),
+(22, 261, 260, 'Hello user 2', '2021-01-25 18:09:48', 1),
+(23, 260, 261, 'Hello user 2', '2021-01-25 18:09:51', 1),
+(24, 260, 261, 'Hello user 2', '2021-01-25 18:09:51', 1),
+(25, 260, 261, 'Hello user 2', '2021-01-25 18:09:51', 1),
+(26, 261, 260, 'Hello user 2', '2021-01-25 18:10:19', 1),
+(27, 261, 260, 'Hello user 2', '2021-01-25 18:10:19', 1),
+(28, 261, 260, 'Hello user 2', '2021-01-25 18:10:19', 1),
+(29, 261, 260, 'Hello user 2', '2021-01-25 18:10:19', 1),
+(30, 261, 260, 'Hello user 2', '2021-01-25 18:40:08', 1),
+(31, 261, 260, 'Hello user 2', '2021-01-25 18:40:08', 1),
+(32, 261, 260, 'Hello user 2', '2021-01-25 18:40:08', 1),
+(33, 261, 260, 'Hello user 2', '2021-01-25 18:40:08', 1),
+(34, 261, 260, 'Hello user 2', '2021-01-25 18:40:09', 1),
+(35, 261, 260, 'Hello user 2', '2021-01-25 18:40:09', 1),
+(36, 261, 260, 'Hello user 2', '2021-01-25 18:40:09', 1),
+(37, 261, 260, 'Hello user 2', '2021-01-25 18:40:22', 1),
+(38, 261, 260, 'Hello user 2', '2021-01-25 18:40:22', 1),
+(39, 260, 261, 'Hello user 2', '2021-01-25 18:40:30', 1),
+(40, 260, 261, 'Hello user 2', '2021-01-25 18:40:30', 1),
+(41, 260, 261, 'Hello user 2', '2021-01-25 18:40:30', 1),
+(42, 260, 261, 'Hello user 2', '2021-01-25 18:40:30', 1),
+(43, 260, 261, 'Hello user 2', '2021-01-25 18:40:31', 1),
+(44, 260, 261, 'Hello user 2', '2021-01-25 18:40:31', 1),
+(45, 260, 261, 'Hello user 2', '2021-01-25 18:40:31', 1),
+(46, 260, 261, 'Hello user 2', '2021-01-26 18:28:42', 1),
+(47, 261, 260, 'Hello user 2', '2021-01-26 18:28:45', 1),
+(48, 260, 261, 'Hello user 2', '2021-01-26 18:28:49', 1),
+(49, 260, 261, 'Hello user 2', '2021-01-26 18:28:50', 1),
+(50, 260, 261, 'Hello user 2', '2021-01-26 18:28:50', 1),
+(51, 260, 261, 'Hello user 2', '2021-01-26 18:28:50', 1),
+(52, 260, 261, 'Hello user 2', '2021-01-26 18:28:50', 1),
+(53, 261, 260, 'Hello user 2', '2021-01-26 18:29:06', 1),
+(54, 261, 260, 'Hello user 2', '2021-01-26 18:29:06', 1),
+(55, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(56, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(57, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(58, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(59, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(60, 261, 260, 'Hello user 2', '2021-01-26 18:29:07', 1),
+(61, 261, 260, 'Hello user 2', '2021-01-26 18:29:08', 1),
+(62, 260, 261, 'Hello user 2', '2021-01-27 17:00:15', 1),
+(63, 260, 261, 'Hello user 2', '2021-01-27 17:00:15', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `notifier` int NOT NULL,
+  `notified` int NOT NULL,
+  `date` datetime NOT NULL,
+  `seen` tinyint DEFAULT (0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `type`, `notifier`, `notified`, `date`, `seen`) VALUES
+(60, 'like', 260, 261, '2021-01-27 15:51:03', 1),
+(61, 'match', 261, 260, '2021-01-27 15:51:15', 1),
+(62, 'match', 260, 261, '2021-01-27 15:51:15', 1),
+(63, 'like', 261, 260, '2021-01-27 15:51:15', 1),
+(64, 'consult', 260, 261, '2021-01-30 12:15:04', 1);
 
 -- --------------------------------------------------------
 
@@ -275,7 +391,8 @@ CREATE TABLE `user` (
   `locationId` int DEFAULT NULL,
   `rankId` int NOT NULL,
   `experience` float NOT NULL,
-  `birthDate` date DEFAULT NULL
+  `birthDate` date DEFAULT NULL,
+  `lastSeen` datetime NOT NULL DEFAULT (now())
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -320,6 +437,7 @@ CREATE TABLE `user_tag` (
 -- Dumping data for table `user_tag`
 --
 
+
 INSERT INTO `user_tag` (`id`, `tagId`, `userId`) VALUES
 (731, 499, 260),
 (781, 499, 265),
@@ -349,7 +467,6 @@ INSERT INTO `user_tag` (`id`, `tagId`, `userId`) VALUES
 (896, 783, 308),
 (897, 499, 309),
 (898, 783, 309);
-
 --
 -- Indexes for dumped tables
 --
@@ -367,8 +484,8 @@ ALTER TABLE `block`
 --
 ALTER TABLE `consults`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uniqueConsulter_Consulted` (`consulter`,`consulted`),
-  ADD KEY `consulted_user` (`consulted`);
+  ADD KEY `consulted_user` (`consulted`),
+  ADD KEY `consulter_user` (`consulter`);
 
 --
 -- Indexes for table `gender`
@@ -405,6 +522,22 @@ ALTER TABLE `match`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_matcher_matched` (`matcher`,`matched`),
   ADD KEY `matched_user` (`matched`);
+
+--
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_sender` (`sender`),
+  ADD KEY `FK_receiver` (`receiver`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_notifier_user` (`notifier`),
+  ADD KEY `fk_notified_user` (`notified`);
 
 --
 -- Indexes for table `rank`
@@ -460,7 +593,7 @@ ALTER TABLE `block`
 -- AUTO_INCREMENT for table `consults`
 --
 ALTER TABLE `consults`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `gender`
@@ -472,13 +605,13 @@ ALTER TABLE `gender`
 -- AUTO_INCREMENT for table `images`
 --
 ALTER TABLE `images`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=231;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=248;
 
 --
 -- AUTO_INCREMENT for table `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
 
 --
 -- AUTO_INCREMENT for table `location`
@@ -490,7 +623,19 @@ ALTER TABLE `location`
 -- AUTO_INCREMENT for table `match`
 --
 ALTER TABLE `match`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `rank`
@@ -508,7 +653,7 @@ ALTER TABLE `sexualOrientation`
 -- AUTO_INCREMENT for table `tag`
 --
 ALTER TABLE `tag`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=913;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=994;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -520,7 +665,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user_tag`
 --
 ALTER TABLE `user_tag`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=787;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=868;
 
 --
 -- Constraints for dumped tables
@@ -559,6 +704,20 @@ ALTER TABLE `likes`
 ALTER TABLE `match`
   ADD CONSTRAINT `matched_user` FOREIGN KEY (`matched`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `matcher_user` FOREIGN KEY (`matcher`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `FK_receiver` FOREIGN KEY (`receiver`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `FK_sender` FOREIGN KEY (`sender`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `fk_notified_user` FOREIGN KEY (`notified`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `fk_notifier_user` FOREIGN KEY (`notifier`) REFERENCES `user` (`id`);
 
 --
 -- Constraints for table `user`

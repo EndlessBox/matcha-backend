@@ -405,7 +405,7 @@ module.exports = class userService {
 
         delete user.orientationId;
         delete user.genderId;
-        delete user.id;
+        // delete user.id;
         delete user.rankId;
         resolve(user);
       } catch (err) {

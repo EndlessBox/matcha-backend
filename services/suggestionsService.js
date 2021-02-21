@@ -35,7 +35,7 @@ module.exports = class suggestionsService {
         let orientationModel = new OrientationModel();
         let locationServ = new locationService();
 
-        console.log(user);
+        console.log({user});
         let userGender = await genderModel.getGenderByAttribute(
           "id",
           user.genderId

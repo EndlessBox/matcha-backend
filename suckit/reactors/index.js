@@ -94,8 +94,11 @@ io.on("connection", async (socket) => {
     }
 
     socket.on("message", async (payload) => {
+      console.log('message0')
       let sender = socket.user;
+      console.log('message1', payload)
       let receiver = await userModel.getUserByAttribute("userName", payload.to);
+      console.log('message2')
 
       if ((await likeModel.checkUsersConnection(sender.id, receiver.id)) !== 2)
         return emmitor(
