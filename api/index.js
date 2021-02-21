@@ -32,6 +32,8 @@ var createBlock = require('./block/createBlock');
 var deleteBlock = require('./block/deleteBlock');
 var createMatch = require('./match/createMatch');
 var deleteMatch = require('./match/deleteMatch');
+var getMatchs = require('./match/getMatchs');
+var getMessages = require('./messages/getMessages');
 
 
 
@@ -78,6 +80,11 @@ router.use('/block', authentication, deleteBlock);
 
 router.use('/match', authentication, createMatch);
 router.use('/match', authentication, deleteMatch);
+router.use('/match', authentication, getMatchs);
+
+
+
+router.use('/message', authentication, getMessages);
 
 /*
  *  Need to remove this route, just for testing ! 

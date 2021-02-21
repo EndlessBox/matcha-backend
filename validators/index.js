@@ -38,6 +38,7 @@ module.exports = {
     createBlock: ["blocker", "blocked"],
     createMatch: ["matcher", "matched"],
     suggestions: ["tri", "filter"],
+    getMesssages: ["offset", "row_count", "userId"]
   },
   regex: {
     email: /(?<recipient>^[a-zA-Z0-9][\w\.\-!#$%&'*+_\/=?^`{}|]{0,64})@(?<domainName>(?:\w{1,63}\.){1,8})(?<topLevelDomain>[a-zA-Z]{2,63})$/g,

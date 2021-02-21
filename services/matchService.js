@@ -82,4 +82,16 @@ module.exports = class matchService {
             }
         })
     }
+
+    getUserMatches(userId){
+        return new Promise(async (resolve, reject) => {
+            try{
+                let matchModel = new MatchModel();
+                let result = await matchModel.getUserMatches(userId);
+                resolve(result);
+            } catch(err) {
+                reject(err);
+            }
+        })
+    }
 }
