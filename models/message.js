@@ -51,4 +51,20 @@ module.exports =  class messagesModel {
             }
           });
     }
+
+
+    getUserLastMessages(requestUserId, userId, offset, row_count) {
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                const [result, _] = await dbConnection.query({
+                    sql: `SELECT m.sender, m.receiver, m.content, m.date FROM \`messages\` m WHERE (m.sender=? AND m.receiver=?) OR (m.sender=? AND m.receiver=?) ORDER BY date DESC LIMIT ${offset * row_count},${row_count}`,
+                    timeout: 40000
+                }, [requestUserId, userId, userId, requestUserId])
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
 }

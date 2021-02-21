@@ -49,8 +49,9 @@ module.exports = (fields = null) => {
         if (data.length != 256 || !mailTokenRegex.test(data)) return false;
         break;
       case "genderId":
-        if (typeof data != "number") return false;
-        break;
+      case "offset":
+      case "row_count":
+      case "userId":
       case "orientationId":
         if (typeof data != "number") return false;
         break;

@@ -3,7 +3,8 @@ module.exports = function (fields) {
     var data = req.body;
     var missingFields;
 
-    missingFields = fields.filter((field) => !data[field]);
+
+    missingFields = fields.filter((field) => data.field != undefined);
     if (missingFields.length)
     {
       let error = new Error(`Missing Fields : ${missingFields.toString()}.`);
