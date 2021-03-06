@@ -343,13 +343,15 @@ module.exports = class userService {
 
         if (userData.tags) await this.manageTags(userData, user);
 
-
-        if (images || userData.profilePictureName !== null)
-        {
-          newImages = images.map(image => image.filename);
-          await imageServ.manageImages(images, user.id, userData.profilePictureName);
+        if (images || userData.profilePictureName !== null) {
+          newImages = images.map((image) => image.filename);
+          await imageServ.manageImages(
+            images,
+            user.id,
+            userData.profilePictureName
+          );
         }
-        delete userData.profilePictureName
+        delete userData.profilePictureName;
 
         if (userData.gender) await this.manageGender(userData, user);
 
@@ -370,7 +372,11 @@ module.exports = class userService {
         }
         if (Object.keys(userData).length)
           await userModel.updateUser(userData, user.id);
-        resolve({ message: "user updated succefully", status: 200, newImages: newImages });
+        resolve({
+          message: "user updated succefully",
+          status: 200,
+          newImages: newImages,
+        });
       } catch (err) {
         if (err === "Invalide gender." || err === "Invalide orientation.") {
           reject({ message: err, status: 400 });
@@ -405,7 +411,7 @@ module.exports = class userService {
 
         delete user.orientationId;
         delete user.genderId;
-        // delete user.id;
+        delete user.id;
         delete user.rankId;
         resolve(user);
       } catch (err) {
