@@ -93,14 +93,11 @@ io.on("connection", async (socket) => {
     }
 
     socket.on("message", async (payload) => {
-      console.log('message0')
       let sender = socket.user;
 
-
       if (!payload.to || !payload.message)
-        return emmitor("error", "Bad request.", socket.id)
+        return emmitor("error", "Bad request.", socket.id);
       let receiver = await userModel.getUserByAttribute("userName", payload.to);
-      console.log('message2')
 
       if ((await likeModel.checkUsersConnection(sender.id, receiver.id)) !== 2)
         return emmitor(
@@ -130,25 +127,37 @@ io.on("connection", async (socket) => {
         );
     });
 
-
     socket.on("checkConnectedUser", async (id) => {
       let socketId = await cacheService.getUserSocketId(id);
 
-      
-      let user = await userModel.getUserByAttribute('id', id);
+      let user = await userModel.getUserByAttribute("id", id);
 
-      if (!user)
-        return emmitor("error", "user not found.", socket.id);
+      if (!user) return emmitor("error", "user not found.", socket.id);
 
       if (!socketId)
-        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, false, user.lastSeen), socket.id);
+        emmitor(
+          "responseConnectedUser",
+          notificationServ.createCheckConnectionResponsePayload(
+            id,
+            false,
+            user.lastSeen
+          ),
+          socket.id
+        );
       else
-        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, true, null), socket.id);
-
-    })
+        emmitor(
+          "responseConnectedUser",
+          notificationServ.createCheckConnectionResponsePayload(id, true, null),
+          socket.id
+        );
+    });
 
     socket.on("disconnect", async () => {
-      await userModel.updateUserAttribute("lastSeen", new Date(), socket.user.id);
+      await userModel.updateUserAttribute(
+        "lastSeen",
+        new Date(),
+        socket.user.id
+      );
       await cacheService.deleteCacheEntry(socket.user.id);
     });
   } catch (error) {
