@@ -129,7 +129,6 @@ io.on("connection", async (socket) => {
 
     socket.on("checkConnectedUser", async (id) => {
       let socketId = await cacheService.getUserSocketId(id);
-
       let user = await userModel.getUserByAttribute("id", id);
 
       if (!user) return emmitor("error", "user not found.", socket.id);
