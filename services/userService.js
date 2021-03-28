@@ -95,7 +95,12 @@ module.exports = class userService {
           mailContent.contentText,
           mailContent.contentHtml(
             user.userName,
-            mailContent.link(user.activationCode)
+            mailContent.link(
+              user.activationCode,
+              config.serverHost,
+              config.nodeEnv,
+              config.serverPort
+            )
           )
         );
         resolve(userId);
@@ -126,14 +131,11 @@ module.exports = class userService {
     });
   }
 
-  async activateEmail(tokenPayload) {
+  async activateEmail(token) {
     return await new Promise(async (resolve, reject) => {
       try {
         var userModel = new UserModel();
-        var user = await userModel.getUserByAttribute(
-          "activationCode",
-          tokenPayload.mailToken
-        );
+        var user = await userModel.getUserByAttribute("activationCode", token);
         var nowDate = new Date();
         var expirationDate = new Date(user.expirationDate);
         if (user.active)
@@ -343,13 +345,15 @@ module.exports = class userService {
 
         if (userData.tags) await this.manageTags(userData, user);
 
-
-        if (images || userData.profilePictureName !== null)
-        {
-          newImages = images.map(image => image.filename);
-          await imageServ.manageImages(images, user.id, userData.profilePictureName);
+        if (images || userData.profilePictureName !== null) {
+          newImages = images.map((image) => image.filename);
+          await imageServ.manageImages(
+            images,
+            user.id,
+            userData.profilePictureName
+          );
         }
-        delete userData.profilePictureName
+        delete userData.profilePictureName;
 
         if (userData.gender) await this.manageGender(userData, user);
 
@@ -370,7 +374,11 @@ module.exports = class userService {
         }
         if (Object.keys(userData).length)
           await userModel.updateUser(userData, user.id);
-        resolve({ message: "user updated succefully", status: 200, newImages: newImages });
+        resolve({
+          message: "user updated succefully",
+          status: 200,
+          newImages: newImages,
+        });
       } catch (err) {
         if (err === "Invalide gender." || err === "Invalide orientation.") {
           reject({ message: err, status: 400 });

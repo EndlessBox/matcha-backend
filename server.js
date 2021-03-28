@@ -13,7 +13,7 @@ var app = express(),
   io = require("socket.io")(server, {
     cors: {
       origin: "*",
-    }
+    },
   }),
   create,
   start;
