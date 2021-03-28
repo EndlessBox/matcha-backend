@@ -3,28 +3,26 @@ var orientationService = require("./sexualOrientationService");
 var GenderModel = require("../models/gender");
 var OrientationModel = require("../models/orientation");
 const locationService = require("./locationService");
-const config = require('../config/config');
+const config = require("../config/config");
+const imageService = require("./imageService");
 
 module.exports = class suggestionsService {
   constructor() {}
 
-
-
-  manageTri(payload){
+  manageTri(payload) {
     let keys = [];
     let order = [];
 
-    Object.keys(payload).map(key => {
+    Object.keys(payload).map((key) => {
       keys.push(key);
       order.push(payload[key]);
-    })
+    });
 
     return {
-      keys: keys, 
-      order: order
-    }
+      keys: keys,
+      order: order,
+    };
   }
-
 
   getUserSuggestions(user, payload) {
     return new Promise(async (resolve, reject) => {
@@ -34,8 +32,8 @@ module.exports = class suggestionsService {
         let genderModel = new GenderModel();
         let orientationModel = new OrientationModel();
         let locationServ = new locationService();
+        let imageServ = new imageService();
 
-        console.log(user);
         let userGender = await genderModel.getGenderByAttribute(
           "id",
           user.genderId
@@ -50,17 +48,38 @@ module.exports = class suggestionsService {
           userGender.gender
         );
         let connectedUserLocation = await locationServ.getUserLocation(user.id);
-        
 
-        let {keys, order} = payload.tri && Object.keys(payload.tri).length ? this.manageTri(payload.tri) : this.manageTri(config.DefaultSuggestionsTri);
+        let { keys, order } =
+          payload.tri && Object.keys(payload.tri).length
+            ? this.manageTri(payload.tri)
+            : this.manageTri(config.DefaultSuggestionsTri);
 
         let result = await userModel.getUserByGenderAndOrientationAndDistance(
-          userPreferableOrientation, user.id, connectedUserLocation, config.defaultUserAreaKm * 1000,
-          keys, order, payload.filter && Object.keys(payload.filter).length ? payload.filter : null,
-          payload.offset, payload.row_count
+          userPreferableOrientation,
+          user.id,
+          connectedUserLocation,
+          config.defaultUserAreaKm * 1000,
+          keys,
+          order,
+          payload.filter && Object.keys(payload.filter).length
+            ? payload.filter
+            : null,
+          payload.offset,
+          payload.row_count
         );
-      resolve(result);
-      
+
+        resolve(
+          Promise.all(
+            result.map(async (element) => {
+              return {
+                ...element,
+                image: element.image
+                  ? await imageServ.getImageBase64(element.image)
+                  : null,
+              };
+            })
+          )
+        );
       } catch (err) {
         console.error(err);
         reject(err);

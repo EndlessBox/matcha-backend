@@ -220,12 +220,14 @@ module.exports = class userModel {
   ) {
     return new Promise(async (resolve, reject) => {
       try {
-        let sqlQuery = `SELECT u.id, u.email, u.experience, u.userName, year(NOW())- year(u.birthDate) as age, u.bio, s.orientation, g.gender, Count(t.tag) as 'communTags', ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) / 1000 as distance \
+        let sqlQuery = `SELECT u.id, u.email, u.experience, u.userName, img.image, year(NOW())- year(u.birthDate) as age, u.bio, s.orientation, g.gender, Count(t.tag) as 'communTags', ST_Distance_sphere(point(l.longitude, l.latitude), point(${userLocation.longitude}, ${userLocation.latitude})) / 1000 as distance \
         FROM \`user\` u INNER JOIN \`gender\` g ON u.genderId=g.id \
                         INNER JOIN \`sexualOrientation\` s ON u.orientationId=s.id \
                         INNER JOIN \`location\` l ON u.locationId=l.id \
                         INNER JOIN \`user_tag\` ut ON  u.id=ut.userId \
                         INNER JOIN \`tag\` t ON t.id=ut.tagId \
+                        INNER JOIN \`images\` img ON u.id=img.userId
+
         WHERE u.id!=${userId} `;
 
         if (filters) {
@@ -235,11 +237,17 @@ module.exports = class userModel {
             ${this.generateFilter(filters, userLocation, userId)}`;
         }
 
-        
         if (research === 0)
-          sqlQuery = sqlQuery + ` AND (${this.generateMultipleGenderOrientationSQl(genderOrientations,"OR")})`;
+          sqlQuery =
+            sqlQuery +
+            ` AND (${this.generateMultipleGenderOrientationSQl(
+              genderOrientations,
+              "OR"
+            )})`;
 
-        sqlQuery = sqlQuery + ` AND \
+        sqlQuery =
+          sqlQuery +
+          ` AND \
           t.tag IN (SELECT t1.tag FROM tag t1 \
                     INNER JOIN user_tag ut1 ON t1.id=ut1.tagId \
                     INNER JOIN user u1 ON u1.id=ut1.userId \
@@ -247,6 +255,8 @@ module.exports = class userModel {
         GROUP BY u.userName \
         ORDER BY ${this.generateOrder(orders, orderVariant)} \
         LIMIT ${offset * row_count},${row_count}`;
+
+        console.log(sqlQuery);
 
         let [results, _] = await dbConnection.query({
           sql: sqlQuery,

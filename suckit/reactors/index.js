@@ -37,13 +37,17 @@ io.on("connection", async (socket) => {
       socket.user.id
     );
 
-    var unseenMessages = await messageModel.getUserWaitingMessages(
-      "receiver",
-      socket.user.id
-    );
-
     var resultsNotification = [];
-    var resultsMessages = [];
+
+    /*
+     * Unseen Messages declarations.
+     */
+    // var unseenMessages = await messageModel.getUserWaitingMessages(
+    //   "receiver",
+    //   socket.user.id
+    // );
+
+    // var resultsMessages = [];
 
     /*
      *  Manage unseen notifications.
@@ -75,35 +79,36 @@ io.on("connection", async (socket) => {
     /*
      *  Manage Unseen messages.
      */
-    if (unseenMessages.length) {
-      resultsMessages = unseenMessages.map(async (message) => {
-        message.receiver = userServ.cleanUserResponse(socket.user);
-        message.sender = await userModel.getUserByAttribute(
-          "id",
-          message.sender
-        );
-        message.sender = userServ.cleanUserResponse(message.sender);
-        await messageModel.updateMessageByAttribute("seen", 1, message.id);
+    // if (unseenMessages.length) {
+    //   resultsMessages = unseenMessages.map(async (message) => {
+    //     message.receiver = userServ.cleanUserResponse(socket.user);
+    //     message.sender = await userModel.getUserByAttribute(
+    //       "id",
+    //       message.sender
+    //     );
+    //     message.sender = userServ.cleanUserResponse(message.sender);
+    //     await messageModel.updateMessageByAttribute("seen", 1, message.id);
 
-        delete message.seen;
-        return message;
-      });
+    //     delete message.seen;
+    //     return message;
+    //   });
 
-      emmitor("message", await Promise.all(resultsMessages), socket.id);
-    }
+    //   emmitor("message", await Promise.all(resultsMessages), socket.id);
+    // }
 
     socket.on("message", async (payload) => {
       let sender = socket.user;
 
+      console.log(payload);
 
       if (!payload.to || !payload.message)
-        return emmitor("error", "Bad request.", socket.id)
+        return emmitor("error", "Bad request.", socket.id);
       let receiver = await userModel.getUserByAttribute("userName", payload.to);
 
       if ((await likeModel.checkUsersConnection(sender.id, receiver.id)) !== 2)
         return emmitor(
           "error",
-          "Sender and Receiver are not connected",
+          "Sender and Receiver are not inter-liked.",
           socket.id
         );
 
@@ -128,25 +133,37 @@ io.on("connection", async (socket) => {
         );
     });
 
-
     socket.on("checkConnectedUser", async (id) => {
       let socketId = await cacheService.getUserSocketId(id);
 
-      
-      let user = await userModel.getUserByAttribute('id', id);
+      let user = await userModel.getUserByAttribute("id", id);
 
-      if (!user)
-        return emmitor("error", "user not found.", socket.id);
+      if (!user) return emmitor("error", "user not found.", socket.id);
 
       if (!socketId)
-        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, false, user.lastSeen), socket.id);
+        emmitor(
+          "responseConnectedUser",
+          notificationServ.createCheckConnectionResponsePayload(
+            id,
+            false,
+            user.lastSeen
+          ),
+          socket.id
+        );
       else
-        emmitor("responseConnectedUser", notificationServ.createCheckConnectionResponsePayload(id, true, null), socket.id);
-
-    })
+        emmitor(
+          "responseConnectedUser",
+          notificationServ.createCheckConnectionResponsePayload(id, true, null),
+          socket.id
+        );
+    });
 
     socket.on("disconnect", async () => {
-      await userModel.updateUserAttribute("lastSeen", new Date(), socket.user.id);
+      await userModel.updateUserAttribute(
+        "lastSeen",
+        new Date(),
+        socket.user.id
+      );
       await cacheService.deleteCacheEntry(socket.user.id);
     });
   } catch (error) {

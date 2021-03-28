@@ -1,18 +1,34 @@
-var MessageModel = require('../models/message');
+var MessageModel = require("../models/message");
 
 module.exports = class messageService {
-    constructor(){}
+  constructor() {}
 
-    getuserlastMessages(payload, user) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let messageModel = new MessageModel();
+  getuserlastMessages(payload, user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log(user);
+        let messageModel = new MessageModel();
 
-                resolve (await messageModel.getUserLastMessages(user.id, payload.userId, payload.offset, payload.row_count));
+        let result = await messageModel.getUserLastMessages(
+          user.id,
+          payload.userId,
+          payload.offset,
+          payload.row_count
+        );
+        // console.og(result);
 
-            } catch (error) {
-                reject(error);
-            }
-        })
-    }
-}
+        result = result.map(async (element) => {
+          if (element.seen == 0 && element.receiver === user.id) {
+            await messageModel.updateMessageByAttribute("seen", 1, element.id);
+            return { ...element, seen: 1 };
+          }
+          return element;
+        });
+
+        resolve(Promise.all(result));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+};
