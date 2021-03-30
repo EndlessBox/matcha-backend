@@ -37,13 +37,17 @@ io.on("connection", async (socket) => {
       socket.user.id
     );
 
-    var unseenMessages = await messageModel.getUserWaitingMessages(
-      "receiver",
-      socket.user.id
-    );
-
     var resultsNotification = [];
-    var resultsMessages = [];
+
+    /*
+     * Unseen Messages declarations.
+     */
+    // var unseenMessages = await messageModel.getUserWaitingMessages(
+    //   "receiver",
+    //   socket.user.id
+    // );
+
+    // var resultsMessages = [];
 
     /*
      *  Manage unseen notifications.
@@ -75,25 +79,27 @@ io.on("connection", async (socket) => {
     /*
      *  Manage Unseen messages.
      */
-    if (unseenMessages.length) {
-      resultsMessages = unseenMessages.map(async (message) => {
-        message.receiver = userServ.cleanUserResponse(socket.user);
-        message.sender = await userModel.getUserByAttribute(
-          "id",
-          message.sender
-        );
-        message.sender = userServ.cleanUserResponse(message.sender);
-        await messageModel.updateMessageByAttribute("seen", 1, message.id);
+    // if (unseenMessages.length) {
+    //   resultsMessages = unseenMessages.map(async (message) => {
+    //     message.receiver = userServ.cleanUserResponse(socket.user);
+    //     message.sender = await userModel.getUserByAttribute(
+    //       "id",
+    //       message.sender
+    //     );
+    //     message.sender = userServ.cleanUserResponse(message.sender);
+    //     await messageModel.updateMessageByAttribute("seen", 1, message.id);
 
-        delete message.seen;
-        return message;
-      });
+    //     delete message.seen;
+    //     return message;
+    //   });
 
-      emmitor("message", await Promise.all(resultsMessages), socket.id);
-    }
+    //   emmitor("message", await Promise.all(resultsMessages), socket.id);
+    // }
 
     socket.on("message", async (payload) => {
       let sender = socket.user;
+
+      console.log(payload);
 
       if (!payload.to || !payload.message)
         return emmitor("error", "Bad request.", socket.id);
@@ -102,7 +108,7 @@ io.on("connection", async (socket) => {
       if ((await likeModel.checkUsersConnection(sender.id, receiver.id)) !== 2)
         return emmitor(
           "error",
-          "Sender and Receiver are not connected",
+          "Sender and Receiver are not inter-liked.",
           socket.id
         );
 

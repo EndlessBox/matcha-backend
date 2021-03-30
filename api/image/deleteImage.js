@@ -1,7 +1,4 @@
 var router = require('express').Router();
-var propertiesValidator = require('../../validators/functionalities/propertiesValidator');
-var valueValidator = require('../../validators/functionalities/valuesValidator');
-var validators = require('../../validators').properties;
 var imageService = require('../../services/imageService');
 
 router.delete('/:imageName', async (req, res, next) => {
