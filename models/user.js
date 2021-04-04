@@ -226,9 +226,10 @@ module.exports = class userModel {
                         INNER JOIN \`location\` l ON u.locationId=l.id \
                         INNER JOIN \`user_tag\` ut ON  u.id=ut.userId \
                         INNER JOIN \`tag\` t ON t.id=ut.tagId \
-                        INNER JOIN \`images\` img ON u.id=img.userId
-
-        WHERE u.id!=${userId} `;
+                        INNER JOIN \`images\` img ON u.id=img.userId \
+        WHERE u.id!=${userId} \
+        AND u.id NOT IN (SELECT m.matcher from \`match\` m where m.matched=${userId}) \
+        AND u.id NOT IN (SELECT m.matched from \`match\` m where m.matcher=${userId}) `;
 
         if (filters) {
           sqlQuery =

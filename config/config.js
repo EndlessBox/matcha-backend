@@ -45,9 +45,11 @@ module.exports = {
       // contentText: (userName, link) => `Hello ${userName}, Please click the following link to activate your account :\n\t${link}`,
       contentText: null,
       contentHtml: (userName, link) =>
-        `<h3>Hello ${userName}</h3>, <p>Please click the following link to activate your account : <a href="${link}">Verification Link</a></p>`,
-      link: (activationCode) =>
-        `http://localhost:3001/api/mailActivation/${activationCode}`,
+        `<h3>Hello ${userName},</h3> <p>Please click the following link to activate your account : <a href="${link}">Verification Link</a></p>`,
+      link: (activationCode, link, nodeEnv, port) =>
+        `${
+          nodeEnv === "production" ? "https" : "http"
+        }://${link}:${port}/api/mailActivation/${activationCode}`,
     },
     passwordReset: {
       subject: "Password Reset",
@@ -57,8 +59,7 @@ module.exports = {
         link
       ) => `<h3>Hello ${userName}</h3>, <p>A Reset password demand was made using your email and userName, please click the following link to reset your password: <a href="${link}">Reset Password Link</a></p>
         <p>If you didn't send any reset request, please ignore this email.</p>`,
-      link: (resetCode) =>
-        `http://localhost:3001/password-reset?t=${resetCode}`,
+      link: (resetCode) => `http://localhost:4200/resetPassword/${resetCode}`,
     },
   },
   Experience: {
