@@ -59,7 +59,8 @@ module.exports = {
         link
       ) => `<h3>Hello ${userName}</h3>, <p>A Reset password demand was made using your email and userName, please click the following link to reset your password: <a href="${link}">Reset Password Link</a></p>
         <p>If you didn't send any reset request, please ignore this email.</p>`,
-      link: (resetCode) => `http://localhost:4200/resetPassword/${resetCode}`,
+      link: (resetCode) =>
+        `http://localhost:3001/password-reset?token=${resetCode}`,
     },
   },
   Experience: {
