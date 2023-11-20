@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: matcha
-space:
+spec:
   ports:
     - port: 80
       targetPort: 3001
