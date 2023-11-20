@@ -3,17 +3,17 @@ kind: Deployment
 metadata:
   name: matcha
 spec:
-	replicas: 1
-	selector:
-		matchLabels:
-			app: matcha
-	template:
-		metadata:
-			labels:
-				app: matcha
-		spec:
-			containers:
-				- image: ybouladh/matcha
-					name: matcha
-					ports:
-						- containerPort: 80
+  replicas: 1
+  selector:
+    matchLabels:
+    app: matcha
+template:
+  metadata:
+    labels:
+      app: matcha
+  spec:
+    containers:
+      - image: ybouladh/matcha
+        name: matcha
+        ports:
+          - containerPort: 80
