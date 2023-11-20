@@ -16,4 +16,4 @@ spec:
         - image: ybouladh/matcha
           name: matcha
           ports:
-            - containerPort: 80
+            - containerPort: 3001
