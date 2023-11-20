@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: deployment
 metadata:
   name: matcha
 spec:
@@ -15,6 +15,6 @@ spec:
 		spec:
 			containers:
 				- image: node:20.9.0-alpine
-					name: matcha
+					name: node
 					ports:
 						- containerPort: 3001
