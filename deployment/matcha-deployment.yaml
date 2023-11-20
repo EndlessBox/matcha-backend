@@ -7,13 +7,13 @@ spec:
   selector:
     matchLabels:
       app: matcha
-template:
-  metadata:
-    labels:
-      app: matcha
-  spec:
-    containers:
-      - image: ybouladh/matcha
-        name: matcha
-        ports:
-          - containerPort: 80
+  template:
+    metadata:
+      labels:
+        app: matcha
+    spec:
+      containers:
+        - image: ybouladh/matcha
+          name: matcha
+          ports:
+            - containerPort: 80
