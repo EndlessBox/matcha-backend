@@ -4,7 +4,7 @@ metadata:
   name: matcha
 space:
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 3001
   selector:
     app: matcha
