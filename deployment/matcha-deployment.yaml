@@ -13,7 +13,7 @@ spec:
 				app: matcha
 		spec:
 			containers:
-				- image: node:20.9.0-alpine
-					name: node
+				- image: ybouladh/matcha
+					name: matcha
 					ports:
 						- containerPort: 3001
