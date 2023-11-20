@@ -16,4 +16,4 @@ spec:
 				- image: node:20.9.0-alpine
 					name: node
 					ports:
-						- containerPort: 3001
+						- containerPort: 80
