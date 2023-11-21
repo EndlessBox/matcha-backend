@@ -23,3 +23,5 @@ spec:
               value: ENDLESSBOX
             - name: MYSQL_PASSWORD
               value: MYSQL_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              value: TOOR
