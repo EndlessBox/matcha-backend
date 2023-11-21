@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:8.0
+          name: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_USER
+              value: ENDLESSBOX
+            - name: MYSQL_PASSWORD
+              value: MYSQL_PASSWORD
